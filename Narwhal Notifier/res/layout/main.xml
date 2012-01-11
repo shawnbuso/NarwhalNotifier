@@ -24,7 +24,8 @@
 		android:layout_marginTop="10dp"
 		android:layout_marginBottom="10dp"/>
 
-    <include layout="@layout/list_item" 
+    <include layout="@layout/list_item"
+        android:id="@+id/accountEditTrigger" 
 		android:layout_marginTop="10dp"
 		android:layout_marginBottom="10dp"/>
     
@@ -37,12 +38,18 @@
         android:background="#888888" 
 		android:layout_marginTop="10dp"
 		android:layout_marginBottom="10dp"/>
+    
+    <TextView
+        android:id="@+id/frequencyPrompt"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="Polling frequency"
+        android:textAppearance="?android:attr/textAppearanceLarge" />
 
     <Spinner
         android:id="@+id/frequencySpinner"
         android:layout_width="fill_parent"
-        android:layout_height="wrap_content" 
-        android:prompt="@string/polling_prompt"/>
+        android:layout_height="wrap_content" />
     
     <View
         android:id="@id/separator"
