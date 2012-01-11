@@ -3,5 +3,6 @@
 
     <string name="hello">Hello World, NarwhalNotifier!</string>
     <string name="app_name">Narwhal Notifier</string>
+    <string name="polling_prompt">Polling frequency:</string>
 
 </resources>
