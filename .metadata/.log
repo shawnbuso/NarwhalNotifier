@@ -1,0 +1,16 @@
+!SESSION 2012-01-11 12:09:55.885 -----------------------------------------------
+eclipse.buildId=M20110909-1335
+java.version=1.6.0_29
+java.vendor=Sun Microsystems Inc.
+BootLoader constants: OS=win32, ARCH=x86_64, WS=win32, NL=en_US
+Framework arguments:  -product org.eclipse.epp.package.java.product
+Command-line arguments:  -os win32 -ws win32 -arch x86_64 -product org.eclipse.epp.package.java.product
+
+!ENTRY com.android.ide.eclipse.adt 4 0 2012-01-11 12:10:57.455
+!MESSAGE Failed to load properties file for project 'Narwhal Notifier'
+
+!ENTRY com.android.ide.eclipse.adt 2 0 2012-01-11 12:30:53.453
+!MESSAGE AndroidManifest: Ignoring unknown 'Li' XML element
+
+!ENTRY com.android.ide.eclipse.adt 2 0 2012-01-11 12:30:54.673
+!MESSAGE AndroidManifest: Ignoring unknown 'Li' XML element
