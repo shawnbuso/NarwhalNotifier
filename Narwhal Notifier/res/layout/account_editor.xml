@@ -25,14 +25,14 @@
         android:background="#888888" />
 
     <LinearLayout
-        android:id="@+id/linearLayout1"
+        android:id="@+id/unameLayout"
         android:layout_width="fill_parent"
         android:layout_height="wrap_content"
         android:layout_marginBottom="10dp"
         android:layout_marginTop="10dp" >
 
         <TextView
-            android:id="@+id/textView1"
+            android:id="@+id/unameLabel"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_marginRight="10dp"
@@ -40,7 +40,7 @@
             android:textAppearance="?android:attr/textAppearanceMedium" />
 
         <EditText
-            android:id="@+id/editText1"
+            android:id="@+id/unameField"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_weight="1" >
@@ -50,14 +50,14 @@
     </LinearLayout>
 
     <LinearLayout
-        android:id="@+id/linearLayout2"
+        android:id="@+id/passLayout"
         android:layout_width="fill_parent"
         android:layout_height="wrap_content"
         android:layout_marginBottom="10dp"
         android:layout_marginTop="10dp" >
 
         <TextView
-            android:id="@+id/textView2"
+            android:id="@+id/passTag"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_marginRight="10dp"
@@ -65,7 +65,7 @@
             android:textAppearance="?android:attr/textAppearanceMedium" />
 
         <EditText
-            android:id="@+id/editText2"
+            android:id="@+id/passField"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_weight="1"
@@ -73,7 +73,7 @@
     </LinearLayout>
 
     <Button
-        android:id="@+id/button1"
+        android:id="@+id/saveButton"
         android:layout_width="fill_parent"
         android:layout_height="wrap_content"
         android:layout_marginTop="10dp"
@@ -82,12 +82,23 @@
         android:text="Save" />
 
     <Button
-        android:id="@+id/button1"
+        android:id="@+id/logoutButton"
         android:layout_width="fill_parent"
         android:layout_height="wrap_content"
         android:layout_marginTop="10dp"
         android:layout_marginLeft="7dp"
         android:layout_marginRight="7dp"
         android:text="Log Out" />
+    
+    <TextView
+        android:id="@+id/loginErrorLabel"
+        android:layout_width="fill_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="10dp"
+        android:gravity="center_horizontal"
+        android:text=""
+        android:textColor="#ff0000"
+        android:textAppearance="?android:attr/textAppearanceLarge"
+        android:textSize="10dp" />
 
 </LinearLayout>

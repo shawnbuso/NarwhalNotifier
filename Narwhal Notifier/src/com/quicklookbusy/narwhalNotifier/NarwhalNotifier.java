@@ -10,7 +10,9 @@ import android.widget.LinearLayout;
 import android.widget.Spinner;
 
 public class NarwhalNotifier extends Activity {
+	
 	public class AccountEditListener implements OnClickListener {
+		
 		public void onClick(View v) {
 			Intent accountActivity = new Intent(NarwhalNotifier.this, AccountEditor.class);
 			startActivity(accountActivity);
