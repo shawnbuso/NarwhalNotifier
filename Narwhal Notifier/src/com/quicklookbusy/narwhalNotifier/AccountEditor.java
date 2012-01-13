@@ -91,7 +91,7 @@ public class AccountEditor extends Activity {
 				
 				settingsEditor.putString("user", uname);
 				settingsEditor.putString("modhash", modhash);
-				settingsEditor.putString("cookie", cookie);	
+				settingsEditor.putString("cookie", cookie);
 				settingsEditor.commit();
 
 			} catch (Exception e) {
@@ -126,6 +126,8 @@ public class AccountEditor extends Activity {
 		loginErrorLabel.setText("");
 		
 		saveButton.setOnClickListener(new SaveListener());
+		
+		logoutButton.setOnClickListener(new LogoutListener());
 		
 		settings = getSharedPreferences(NarwhalNotifier.PREFS_NAME, 0);
 		settingsEditor = settings.edit();

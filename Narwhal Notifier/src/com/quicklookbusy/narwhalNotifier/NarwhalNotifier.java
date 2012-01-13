@@ -9,6 +9,7 @@ import org.apache.http.HttpResponse;
 import org.apache.http.NameValuePair;
 import org.apache.http.client.HttpClient;
 import org.apache.http.client.entity.UrlEncodedFormEntity;
+import org.apache.http.client.methods.HttpGet;
 import org.apache.http.client.methods.HttpPost;
 import org.apache.http.impl.client.DefaultHttpClient;
 import org.apache.http.message.BasicNameValuePair;
@@ -67,8 +68,9 @@ public class NarwhalNotifier extends Activity {
 					//Taken from http://www.androidsnippets.com/executing-a-http-post-request-with-httpclient
 					HttpClient httpclient = new DefaultHttpClient();
 					String url = "http://www.reddit.com/message/unread/.json";
-					HttpPost httppost = new HttpPost(url);
-					httppost.setHeader("User-Agent", "Mozilla/4.0 (compatible; MSIE 6.0; Windows NT 5.0)");
+					HttpGet httpget = new HttpGet(url);
+					//httpget.setHeader("User-Agent", "Mozilla/4.0 (compatible; MSIE 6.0; Windows NT 5.0)");
+					//httpget.setHeader("Set-Cookie", settings.getString("cookie", ""));
 					
 					//String modhash = settings.getString("modhash", "");
 
@@ -77,7 +79,7 @@ public class NarwhalNotifier extends Activity {
 						//nameValuePairs.add(new BasicNameValuePair("uh", modhash));
 						//httppost.setEntity(new UrlEncodedFormEntity(nameValuePairs));
 						
-						HttpResponse response = httpclient.execute(httppost);
+						HttpResponse response = httpclient.execute(httpget);
 						
 						//Taken from http://stackoverflow.com/questions/2845599/how-do-i-parse-json-from-a-java-httpresponse
 						BufferedReader reader = new BufferedReader(new InputStreamReader(response.getEntity().getContent(), "UTF-8"));
