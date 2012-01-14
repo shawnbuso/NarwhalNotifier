@@ -17,6 +17,7 @@ import org.json.JSONObject;
 import org.json.JSONTokener;
 
 import android.app.Activity;
+import android.content.Context;
 import android.content.SharedPreferences;
 import android.content.SharedPreferences.Editor;
 import android.graphics.Color;
@@ -24,6 +25,8 @@ import android.os.Bundle;
 import android.util.Log;
 import android.view.View;
 import android.view.View.OnClickListener;
+import android.view.View.OnFocusChangeListener;
+import android.view.inputmethod.InputMethodManager;
 import android.widget.Button;
 import android.widget.EditText;
 import android.widget.TextView;
@@ -96,6 +99,7 @@ public class AccountEditor extends Activity {
 
 			} catch (Exception e) {
 				Log.d(logTag, "Error sending login info: " + e.toString());
+				loginErrorLabel.setText("Error sending login info: " + e.toString());
 			}
 		}
 	}
@@ -105,10 +109,20 @@ public class AccountEditor extends Activity {
 		public void onClick(View v) {
 			settingsEditor.clear();
 			settingsEditor.commit();
+			Log.d(logTag, "User: " + settings.getString("user", ""));
 			loginErrorLabel.setText("Logged out");
 			loginErrorLabel.setTextColor(Color.GREEN);
 		}
 		
+	}
+	
+	public class EditTextFocusListener implements OnFocusChangeListener {
+
+		public void onFocusChange(View v, boolean hasFocus) {
+			if(hasFocus) {
+				showKeyboard((EditText) v);
+			}
+		}
 	}
 
 	@Override
@@ -116,9 +130,20 @@ public class AccountEditor extends Activity {
 		super.onCreate(savedInstanceState);
 		
 		setContentView(R.layout.account_editor);
+		
+		settings = getSharedPreferences(NarwhalNotifier.PREFS_NAME, 0);
+		settingsEditor = settings.edit();
 
 		unameField = (EditText) findViewById(R.id.unameField);
+		unameField.setOnFocusChangeListener(new EditTextFocusListener());
+		String user = settings.getString("user", "");
+		if(!user.equals("")) {
+			unameField.setText(user);
+		}
+		
 		passField = (EditText) findViewById(R.id.passField);
+		passField.setOnFocusChangeListener(new EditTextFocusListener());
+		
 		saveButton = (Button) findViewById(R.id.saveButton);
 		logoutButton = (Button) findViewById(R.id.logoutButton);
 		loginErrorLabel = (TextView) findViewById(R.id.loginErrorLabel);
@@ -128,8 +153,16 @@ public class AccountEditor extends Activity {
 		saveButton.setOnClickListener(new SaveListener());
 		
 		logoutButton.setOnClickListener(new LogoutListener());
-		
-		settings = getSharedPreferences(NarwhalNotifier.PREFS_NAME, 0);
-		settingsEditor = settings.edit();
+	}
+	
+	private void showKeyboard(EditText et) {
+		InputMethodManager mgr = (InputMethodManager) getSystemService(Context.INPUT_METHOD_SERVICE);
+		// only will trigger it if no physical keyboard is open
+		mgr.showSoftInput(et, InputMethodManager.SHOW_IMPLICIT);
+	}
+	
+	private void hideKeyboard(EditText et) {
+		InputMethodManager mgr = (InputMethodManager) getSystemService(Context.INPUT_METHOD_SERVICE);
+		mgr.hideSoftInputFromWindow(et.getWindowToken(), 0);
 	}
 }

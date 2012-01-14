@@ -18,13 +18,18 @@ import org.json.JSONObject;
 import org.json.JSONTokener;
 
 import android.app.Activity;
+import android.app.ActivityManager;
+import android.app.ActivityManager.RunningServiceInfo;
 import android.content.Intent;
 import android.content.SharedPreferences;
+import android.content.SharedPreferences.Editor;
 import android.graphics.Color;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.View;
 import android.view.View.OnClickListener;
+import android.widget.AdapterView;
+import android.widget.AdapterView.OnItemSelectedListener;
 import android.widget.ArrayAdapter;
 import android.widget.LinearLayout;
 import android.widget.Spinner;
@@ -44,6 +49,7 @@ public class NarwhalNotifier extends Activity {
 	Intent service;
 	
 	SharedPreferences settings;
+	Editor settingsEditor;
 	
 	public class AccountEditListener implements OnClickListener {
 		
@@ -53,56 +59,46 @@ public class NarwhalNotifier extends Activity {
 		}
 	}
 	
+	public class FrequencyListener implements OnItemSelectedListener {
+
+		public void onItemSelected(AdapterView<?> arg0, View arg1, int arg2,
+				long arg3) {
+			settingsEditor.putInt("frequency", Integer.parseInt(frequencySpinner.getSelectedItem().toString()));
+			settingsEditor.commit();
+		}
+
+		public void onNothingSelected(AdapterView<?> arg0) {
+			//Do nothing
+		}
+	}
+	
 	public class ServiceListener implements OnClickListener {
 
 		public void onClick(View v) {
-				if(serviceButton.isChecked()) {
-					
+				if(serviceButton.isChecked()) {					
 					if(settings.getString("user", "").equals("")) {
 						serviceErrorLabel.setText("Error: No user logged in");
 						serviceErrorLabel.setTextColor(Color.RED);
+						serviceButton.setChecked(false);
 					}
-					//service = new Intent(NarwhalNotifier.this, NarwhalNotifierService.class);
-					//startService(service);
-					
-					//Taken from http://www.androidsnippets.com/executing-a-http-post-request-with-httpclient
-					HttpClient httpclient = new DefaultHttpClient();
-					String url = "http://www.reddit.com/message/unread/.json";
-					HttpGet httpget = new HttpGet(url);
-					//httpget.setHeader("User-Agent", "Mozilla/4.0 (compatible; MSIE 6.0; Windows NT 5.0)");
-					httpget.setHeader("Cookie", "reddit_session=" + settings.getString("cookie", ""));
-					
-					//String modhash = settings.getString("modhash", "");
-
-					try {
-						//List<NameValuePair> nameValuePairs = new ArrayList<NameValuePair>(3);
-						//nameValuePairs.add(new BasicNameValuePair("uh", modhash));
-						//httppost.setEntity(new UrlEncodedFormEntity(nameValuePairs));
-						
-						HttpResponse response = httpclient.execute(httpget);
-						
-						//Taken from http://stackoverflow.com/questions/2845599/how-do-i-parse-json-from-a-java-httpresponse
-						BufferedReader reader = new BufferedReader(new InputStreamReader(response.getEntity().getContent(), "UTF-8"));
-						String jsonString = reader.readLine();
-						Log.d(logTag, "First Response: " + jsonString.toString());
-						JSONTokener tokener = new JSONTokener(jsonString);
-						JSONObject jsonResult = new JSONObject(tokener);
-						
-						Log.d(logTag, "JSON Response: " + jsonResult.toString());
-					} catch (Exception e) {
-						Log.d(logTag, "Error sending login info: " + e.toString());
+					else {
+						service = new Intent(NarwhalNotifier.this, NarwhalNotifierService.class);
+						startService(service);
+						serviceErrorLabel.setText("Service started");
+						serviceErrorLabel.setTextColor(Color.GREEN);
 					}
 				}
 				else {
 					//Kill service
-					if(settings.getBoolean("serviceRunning", false)) {
+					if(isMyServiceRunning()) {
+						service = new Intent(NarwhalNotifier.this, NarwhalNotifierService.class);
 						stopService(service);
 						serviceErrorLabel.setText("Service stopped");
 						serviceErrorLabel.setTextColor(Color.GREEN);
 					}
 					else {
 						serviceErrorLabel.setText("Error: Service not running");
-						serviceErrorLabel.setTextColor(Color.RED);	
+						serviceErrorLabel.setTextColor(Color.RED);
 					}
 				}
 		}		
@@ -115,27 +111,51 @@ public class NarwhalNotifier extends Activity {
         setContentView(R.layout.main);
         
         settings = getSharedPreferences(PREFS_NAME, 0);
+        settingsEditor = settings.edit();
         
         LinearLayout accountEditTrigger = (LinearLayout) findViewById(R.id.accountEditTrigger);
         accountEditTrigger.setOnClickListener(new AccountEditListener());
         
         TextView subText = (TextView) findViewById(R.id.accountSubtext);
-        String user = settings.getString("user", "");
-        if(user.equals("")) {
-        	subText.setText("Not currently logged in. Click to log in.");
-        }
-        else {
-        	subText.setText("Currently logged in as " + user);
-        }
+        syncSubtext();
         
         frequencySpinner = (Spinner) findViewById(R.id.frequencySpinner);
         ArrayAdapter<CharSequence> adapter = ArrayAdapter.createFromResource(this, R.array.planets_array, android.R.layout.simple_spinner_item);
         adapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
         frequencySpinner.setAdapter(adapter);
+        frequencySpinner.setOnItemSelectedListener(new FrequencyListener());
         
         serviceButton = (ToggleButton) findViewById(R.id.serviceToggle);
+        serviceButton.setChecked(isMyServiceRunning());
         serviceButton.setOnClickListener(new ServiceListener());
         
         serviceErrorLabel = (TextView) findViewById(R.id.serviceErrorLabel);
+        serviceErrorLabel.setText("");
+    }
+    
+    @Override
+    public void onResume() {
+    	super.onResume();
+    	syncSubtext();
+    }
+    
+	private void syncSubtext() {
+		TextView subText = (TextView) findViewById(R.id.accountSubtext);
+		String user = settings.getString("user", "");
+		if (user.equals("")) {
+			subText.setText("Not currently logged in. Click to log in.");
+		} else {
+			subText.setText("Currently logged in as " + user + " - click to change");
+		}
+	}
+    
+    private boolean isMyServiceRunning() {
+        ActivityManager manager = (ActivityManager) getSystemService(ACTIVITY_SERVICE);
+        for (RunningServiceInfo service : manager.getRunningServices(Integer.MAX_VALUE)) {
+            if ("com.quicklookbusy.narwhalNotifier.NarwhalNotifierService".equals(service.service.getClassName())) {
+                return true;
+            }
+        }
+        return false;
     }
 }
