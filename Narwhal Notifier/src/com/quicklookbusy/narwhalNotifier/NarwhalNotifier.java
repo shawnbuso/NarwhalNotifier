@@ -70,7 +70,7 @@ public class NarwhalNotifier extends Activity {
 					String url = "http://www.reddit.com/message/unread/.json";
 					HttpGet httpget = new HttpGet(url);
 					//httpget.setHeader("User-Agent", "Mozilla/4.0 (compatible; MSIE 6.0; Windows NT 5.0)");
-					//httpget.setHeader("Set-Cookie", settings.getString("cookie", ""));
+					httpget.setHeader("Cookie", "reddit_session=" + settings.getString("cookie", ""));
 					
 					//String modhash = settings.getString("modhash", "");
 
