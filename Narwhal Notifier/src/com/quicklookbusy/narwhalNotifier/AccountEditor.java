@@ -46,6 +46,7 @@ public class AccountEditor extends Activity {
 
 	public class SaveListener implements OnClickListener {
 		public void onClick(View v) {
+			hideKeyboard(v);
 			/*
 			 * Log in. If successful, save. If not, print error message
 			 */
@@ -107,6 +108,7 @@ public class AccountEditor extends Activity {
 	public class LogoutListener implements OnClickListener {
 
 		public void onClick(View v) {
+			hideKeyboard(v);
 			settingsEditor.clear();
 			settingsEditor.commit();
 			Log.d(logTag, "User: " + settings.getString("user", ""));
@@ -161,8 +163,8 @@ public class AccountEditor extends Activity {
 		mgr.showSoftInput(et, InputMethodManager.SHOW_IMPLICIT);
 	}
 	
-	private void hideKeyboard(EditText et) {
+	private void hideKeyboard(View v) {
 		InputMethodManager mgr = (InputMethodManager) getSystemService(Context.INPUT_METHOD_SERVICE);
-		mgr.hideSoftInputFromWindow(et.getWindowToken(), 0);
+		mgr.hideSoftInputFromWindow(v.getWindowToken(), 0);
 	}
 }

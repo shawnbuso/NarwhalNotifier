@@ -82,7 +82,7 @@ public class NarwhalNotifierService extends Service {
 							settingsEditor.putString("topMessageName", topMessageName);
 							settingsEditor.commit();
 							//Taken from http://developer.android.com/guide/topics/ui/notifiers/notifications.html
-							int icon = R.drawable.ic_launcher;
+							int icon = R.drawable.icon;
 							CharSequence tickerText = "New reddit message!";
 							long when = System.currentTimeMillis();
 							Context context = getApplicationContext();
