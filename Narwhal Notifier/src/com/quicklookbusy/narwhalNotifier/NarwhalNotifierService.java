@@ -87,15 +87,15 @@ public class NarwhalNotifierService extends BroadcastReceiver {
 				Log.d(logTag, "New messages!");
 				
 				JSONObject topMessageData = children.getJSONObject(0).getJSONObject("data");
-				String topMessageName = topMessageData.getString("name");
+				long topMessageTime = topMessageData.getLong("created");
 				Log.d(logTag, "topMessageData: " + topMessageData.toString());
 				
-				Log.d(logTag, "Top message name: " + settings.getString("topMessageName", ""));
-				Log.d(logTag, "Current message name: " + topMessageName);
-				if(!topMessageName.equals(settings.getString("topMessageName", ""))) {
+				Log.d(logTag, "Top message time: " + settings.getString("topMessageTime", ""));
+				Log.d(logTag, "Current message time: " + topMessageTime);
+				if(topMessageTime > settings.getLong("topMessageTime", 0)) {
 					Log.d(logTag, "Notifying");
 					//Only notify on a new top message
-					settingsEditor.putString("topMessageName", topMessageName);
+					settingsEditor.putLong("topMessageTime", topMessageTime);
 					settingsEditor.commit();
 					//Taken from http://developer.android.com/guide/topics/ui/notifiers/notifications.html
 					int icon = R.drawable.icon;
