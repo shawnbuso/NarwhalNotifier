@@ -149,6 +149,7 @@ public class NarwhalNotifier extends Activity {
     public void onResume() {
     	super.onResume();
     	syncSubtext();
+    	serviceFeedbackLabel.setText("");
     }
     
 	private void syncSubtext() {

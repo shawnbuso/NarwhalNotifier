@@ -42,7 +42,7 @@ public class AccountEditor extends Activity {
 	EditText passField;
 	Button saveButton;
 	Button logoutButton;
-	TextView loginErrorLabel;
+	TextView loginFeedbackLabel;
 	
 	SharedPreferences settings;
 	Editor settingsEditor;
@@ -92,13 +92,13 @@ public class AccountEditor extends Activity {
 				JSONObject json = jsonResult.getJSONObject("json");
 				JSONArray errors = json.getJSONArray("errors");
 				if(errors.length() > 0) {
-					loginErrorLabel.setText("Error logging you in: " + errors.getJSONArray(0).getString(1));
-					loginErrorLabel.setTextColor(Color.RED);
+					loginFeedbackLabel.setText("Error logging you in: " + errors.getJSONArray(0).getString(1));
+					loginFeedbackLabel.setTextColor(Color.RED);
 					return;
 				}
 				else {
-					loginErrorLabel.setText("Success!");
-					loginErrorLabel.setTextColor(Color.GREEN);
+					loginFeedbackLabel.setText("Success!");
+					loginFeedbackLabel.setTextColor(Color.GREEN);
 				}
 				JSONObject data = json.getJSONObject("data");
 				String modhash = (String) data.get("modhash");
@@ -114,7 +114,7 @@ public class AccountEditor extends Activity {
 
 			} catch (Exception e) {
 				Log.d(logTag, "Error sending login info: " + e.toString());
-				loginErrorLabel.setText("Error sending login info: " + e.toString());
+				loginFeedbackLabel.setText("Error sending login info: " + e.toString());
 			}
 		}
 	}
@@ -123,11 +123,17 @@ public class AccountEditor extends Activity {
 
 		public void onClick(View v) {
 			hideKeyboard(v);
-			settingsEditor.clear();
-			settingsEditor.commit();
-			Log.d(logTag, "User: " + settings.getString("user", ""));
-			loginErrorLabel.setText("Logged out");
-			loginErrorLabel.setTextColor(Color.GREEN);
+			if(settings.getBoolean("serviceRunning", true)) {
+				loginFeedbackLabel.setText("Error - cannot log out while the service is running");
+				loginFeedbackLabel.setTextColor(Color.RED);				
+			}
+			else {
+				settingsEditor.clear();
+				settingsEditor.commit();
+				unameField.setText("");
+				loginFeedbackLabel.setText("Logged out");
+				loginFeedbackLabel.setTextColor(Color.GREEN);
+			}
 		}
 		
 	}
@@ -162,9 +168,9 @@ public class AccountEditor extends Activity {
 		
 		saveButton = (Button) findViewById(R.id.saveButton);
 		logoutButton = (Button) findViewById(R.id.logoutButton);
-		loginErrorLabel = (TextView) findViewById(R.id.loginErrorLabel);
+		loginFeedbackLabel = (TextView) findViewById(R.id.loginErrorLabel);
 		
-		loginErrorLabel.setText("");
+		loginFeedbackLabel.setText("");
 		
 		saveButton.setOnClickListener(new SaveListener());
 		
