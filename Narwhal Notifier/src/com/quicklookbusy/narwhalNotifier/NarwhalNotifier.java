@@ -96,8 +96,6 @@ public class NarwhalNotifier extends Activity {
 						
 						serviceFeedbackLabel.setText("Service started");
 						serviceFeedbackLabel.setTextColor(Color.GREEN);
-						settingsEditor.putBoolean("serviceRunning", true);
-						settingsEditor.commit();
 					}
 				}
 				else {
@@ -171,6 +169,8 @@ public class NarwhalNotifier extends Activity {
 		time.add(Calendar.SECOND, 5);
 		long interval = settings.getInt("frequency", 5) * 60 * 1000;
 		am.setRepeating(AlarmManager.RTC_WAKEUP, time.getTimeInMillis(), interval, pi);
+		settingsEditor.putBoolean("serviceRunning", true);
+		settingsEditor.commit();
 	}
 	
 	public void unregisterService() {
@@ -178,6 +178,8 @@ public class NarwhalNotifier extends Activity {
 		Intent i = new Intent(NarwhalNotifier.this, NarwhalNotifierService.class);
 		PendingIntent pi = PendingIntent.getBroadcast(NarwhalNotifier.this, 0, i, 0);
 		am.cancel(pi);
+		settingsEditor.putBoolean("serviceRunning", false);
+		settingsEditor.commit();
 	}
     
     /*private boolean isMyServiceRunning() {
