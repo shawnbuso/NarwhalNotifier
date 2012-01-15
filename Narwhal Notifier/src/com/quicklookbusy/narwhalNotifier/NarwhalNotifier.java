@@ -69,6 +69,7 @@ public class NarwhalNotifier extends Activity {
 
 		public void onItemSelected(AdapterView<?> av, View v, int i, long l) {
 			settingsEditor.putInt("frequency", Integer.parseInt(frequencySpinner.getSelectedItem().toString()));
+			settingsEditor.putInt("frequencyIndex", frequencySpinner.getSelectedItemPosition());
 			settingsEditor.commit();
 			if(settings.getBoolean("serviceRunning", false)) {
 				//If service is running, kill it and re-register it with the new frequency
@@ -133,6 +134,7 @@ public class NarwhalNotifier extends Activity {
         ArrayAdapter<CharSequence> adapter = ArrayAdapter.createFromResource(this, R.array.planets_array, android.R.layout.simple_spinner_item);
         adapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
         frequencySpinner.setAdapter(adapter);
+        frequencySpinner.setSelection(settings.getInt("frequencyIndex", 3), true);
         frequencySpinner.setOnItemSelectedListener(new FrequencyListener());
         
         serviceButton = (ToggleButton) findViewById(R.id.serviceToggle);
