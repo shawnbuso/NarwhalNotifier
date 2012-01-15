@@ -12,6 +12,9 @@ import org.apache.http.client.entity.UrlEncodedFormEntity;
 import org.apache.http.client.methods.HttpPost;
 import org.apache.http.impl.client.DefaultHttpClient;
 import org.apache.http.message.BasicNameValuePair;
+import org.apache.http.params.BasicHttpParams;
+import org.apache.http.params.HttpConnectionParams;
+import org.apache.http.params.HttpParams;
 import org.json.JSONArray;
 import org.json.JSONObject;
 import org.json.JSONTokener;
@@ -54,8 +57,19 @@ public class AccountEditor extends Activity {
 			String pass = passField.getText().toString();
 			String api_type = "json";
 
+			//Taken from http://stackoverflow.com/questions/693997/how-to-set-httpresponse-timeout-for-android-in-java
+			HttpParams httpParams = new BasicHttpParams();
+			// Set the timeout in milliseconds until a connection is established.
+			// The default value is zero, that means the timeout is not used. 
+			int timeoutConnection = 10000;
+			HttpConnectionParams.setConnectionTimeout(httpParams, timeoutConnection);
+			// Set the default socket timeout (SO_TIMEOUT) 
+			// in milliseconds which is the timeout for waiting for data.
+			int timeoutSocket = 10000;
+			HttpConnectionParams.setSoTimeout(httpParams, timeoutSocket);			
+			
 			//Taken from http://www.androidsnippets.com/executing-a-http-post-request-with-httpclient
-			HttpClient httpclient = new DefaultHttpClient();
+			HttpClient httpclient = new DefaultHttpClient(httpParams);
 			HttpPost httppost = new HttpPost("https://ssl.reddit.com/api/login/" + uname);
 
 			try {
