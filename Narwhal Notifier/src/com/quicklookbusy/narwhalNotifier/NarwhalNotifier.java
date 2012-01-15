@@ -134,7 +134,7 @@ public class NarwhalNotifier extends Activity {
         ArrayAdapter<CharSequence> adapter = ArrayAdapter.createFromResource(this, R.array.planets_array, android.R.layout.simple_spinner_item);
         adapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
         frequencySpinner.setAdapter(adapter);
-        frequencySpinner.setSelection(settings.getInt("frequencyIndex", 3), true);
+        frequencySpinner.setSelection(settings.getInt("frequencyIndex", 2), true);
         frequencySpinner.setOnItemSelectedListener(new FrequencyListener());
         
         serviceButton = (ToggleButton) findViewById(R.id.serviceToggle);
