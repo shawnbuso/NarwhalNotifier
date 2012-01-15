@@ -4,6 +4,8 @@ import java.io.BufferedReader;
 import java.io.InputStreamReader;
 import java.text.DecimalFormat;
 import java.text.NumberFormat;
+import java.text.SimpleDateFormat;
+import java.util.Date;
 
 import org.apache.http.HttpResponse;
 import org.apache.http.client.HttpClient;
@@ -24,6 +26,7 @@ import android.content.SharedPreferences;
 import android.content.SharedPreferences.Editor;
 import android.net.Uri;
 import android.os.IBinder;
+import android.text.format.DateFormat;
 import android.util.Log;
 
 public class NarwhalNotifierService extends BroadcastReceiver {
@@ -41,7 +44,7 @@ public class NarwhalNotifierService extends BroadcastReceiver {
 	
 	@Override
 	public void onReceive(Context context, Intent i) {
-		Log.d(logTag, "Alarm went off!");
+		log("Alarm went off!");
         
         String ns = Context.NOTIFICATION_SERVICE;
         notificationManager = (NotificationManager) context.getSystemService(ns);
@@ -57,7 +60,7 @@ public class NarwhalNotifierService extends BroadcastReceiver {
 	}
 	
 	private void update(Context context) {
-		Log.d(logTag, "In loop");
+		log("In loop");
 		//Taken from http://www.androidsnippets.com/executing-a-http-post-request-with-httpclient
 		HttpClient httpclient = new DefaultHttpClient();
 		String url = "http://www.reddit.com/message/unread/.json";
@@ -71,10 +74,10 @@ public class NarwhalNotifierService extends BroadcastReceiver {
 			//Taken from http://stackoverflow.com/questions/2845599/how-do-i-parse-json-from-a-java-httpresponse
 			BufferedReader reader = new BufferedReader(new InputStreamReader(response.getEntity().getContent(), "UTF-8"));
 			String jsonString = reader.readLine();
-			Log.d(logTag, "First Response: " + jsonString.toString());
+			log("First Response: " + jsonString.toString());
 			JSONTokener tokener = new JSONTokener(jsonString);
 			JSONObject jsonResult = new JSONObject(tokener);
-			Log.d(logTag, "JSON Response: " + jsonResult.toString());
+			log("JSON Response: " + jsonResult.toString());
 			
 			JSONObject data = jsonResult.getJSONObject("data");
 			settingsEditor.putString("modhash", data.getString("modhash"));
@@ -83,21 +86,21 @@ public class NarwhalNotifierService extends BroadcastReceiver {
 			
 			
 			if(children.length() == 0) {
-				Log.d(logTag, "No new messages");
+				log("No new messages");
 			}
 			else {
-				Log.d(logTag, "New messages!");
+				log("New messages!");
 				
 				JSONObject topMessageData = children.getJSONObject(0).getJSONObject("data");
-				Log.d(logTag, "Created: " + topMessageData.getString("created"));
+				log("Created: " + topMessageData.getString("created"));
 				String createdString = topMessageData.getString("created");
 				NumberFormat nf = new DecimalFormat("###.##");				
 				long topMessageTime = nf.parse(createdString).longValue();
-				Log.d(logTag, "topMessageData: " + topMessageData.toString());				
-				Log.d(logTag, "Top message time: " + settings.getLong("topMessageTime", 0));
-				Log.d(logTag, "Current message time: " + topMessageTime);
+				log("topMessageData: " + topMessageData.toString());				
+				log("Top message time: " + settings.getLong("topMessageTime", 0));
+				log("Current message time: " + topMessageTime);
 				if(topMessageTime > settings.getLong("topMessageTime", 0)) {
-					Log.d(logTag, "Notifying");
+					log("Notifying");
 					//Only notify on a new top message
 					settingsEditor.putLong("topMessageTime", topMessageTime);
 					settingsEditor.commit();
@@ -123,7 +126,13 @@ public class NarwhalNotifierService extends BroadcastReceiver {
 			}
 			
 		} catch (Exception e) {
-			Log.d(logTag, "Error getting messages: " + e.toString());
+			log("Error getting messages: " + e.toString());
 		}
+	}
+	
+	private void log(String s) {
+		SimpleDateFormat df = new SimpleDateFormat("HH:mm:ss");
+		Date date = new Date();
+		Log.d(logTag, df.format(date) + ": " + s);
 	}
 }
