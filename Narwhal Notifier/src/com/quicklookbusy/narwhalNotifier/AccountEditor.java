@@ -128,7 +128,9 @@ public class AccountEditor extends Activity {
 				loginFeedbackLabel.setTextColor(Color.RED);				
 			}
 			else {
-				settingsEditor.clear();
+				settingsEditor.putString("user", "");
+				settingsEditor.putString("modhash", "");
+				settingsEditor.putString("cookie", "");
 				settingsEditor.commit();
 				unameField.setText("");
 				loginFeedbackLabel.setText("Logged out");
