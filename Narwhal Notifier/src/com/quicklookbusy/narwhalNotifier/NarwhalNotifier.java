@@ -3,6 +3,7 @@ package com.quicklookbusy.narwhalNotifier;
 import java.io.BufferedReader;
 import java.io.InputStreamReader;
 import java.util.ArrayList;
+import java.util.Calendar;
 import java.util.List;
 
 import org.apache.http.HttpResponse;
@@ -20,6 +21,9 @@ import org.json.JSONTokener;
 import android.app.Activity;
 import android.app.ActivityManager;
 import android.app.ActivityManager.RunningServiceInfo;
+import android.app.AlarmManager;
+import android.app.PendingIntent;
+import android.content.Context;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.content.SharedPreferences.Editor;
@@ -42,7 +46,7 @@ public class NarwhalNotifier extends Activity {
 	
 	ToggleButton serviceButton;
 	Spinner frequencySpinner;
-	TextView serviceErrorLabel;
+	TextView serviceFeedbackLabel;
 	
 	String logTag = "NarwhalNotifier";
 	
@@ -50,6 +54,8 @@ public class NarwhalNotifier extends Activity {
 	
 	SharedPreferences settings;
 	Editor settingsEditor;
+	
+	AlarmManager am;
 	
 	public class AccountEditListener implements OnClickListener {
 		
@@ -61,10 +67,14 @@ public class NarwhalNotifier extends Activity {
 	
 	public class FrequencyListener implements OnItemSelectedListener {
 
-		public void onItemSelected(AdapterView<?> arg0, View arg1, int arg2,
-				long arg3) {
+		public void onItemSelected(AdapterView<?> av, View v, int i, long l) {
 			settingsEditor.putInt("frequency", Integer.parseInt(frequencySpinner.getSelectedItem().toString()));
 			settingsEditor.commit();
+			if(settings.getBoolean("serviceRunning", false)) {
+				//If service is running, kill it and re-register it with the new frequency
+				unregisterService();
+				registerService();
+			}
 		}
 
 		public void onNothingSelected(AdapterView<?> arg0) {
@@ -77,35 +87,35 @@ public class NarwhalNotifier extends Activity {
 		public void onClick(View v) {
 				if(serviceButton.isChecked()) {					
 					if(settings.getString("user", "").equals("")) {
-						serviceErrorLabel.setText("Error: No user logged in");
-						serviceErrorLabel.setTextColor(Color.RED);
+						serviceFeedbackLabel.setText("Error: No user logged in");
+						serviceFeedbackLabel.setTextColor(Color.RED);
 						serviceButton.setChecked(false);
 					}
 					else {
-						service = new Intent(NarwhalNotifier.this, NarwhalNotifierService.class);
-						startService(service);
-						serviceErrorLabel.setText("Service started");
-						serviceErrorLabel.setTextColor(Color.GREEN);
+						registerService();
+						
+						serviceFeedbackLabel.setText("Service started");
+						serviceFeedbackLabel.setTextColor(Color.GREEN);
 					}
 				}
 				else {
 					//Kill service
-					if(isMyServiceRunning()) {
-						service = new Intent(NarwhalNotifier.this, NarwhalNotifierService.class);
-						stopService(service);
-						serviceErrorLabel.setText("Service stopped");
-						serviceErrorLabel.setTextColor(Color.GREEN);
+					if(settings.getBoolean("serviceRunning", false)) {
+						unregisterService();
+						
+						serviceFeedbackLabel.setText("Service stopped");
+						serviceFeedbackLabel.setTextColor(Color.GREEN);
 					}
 					else {
-						serviceErrorLabel.setText("Error: Service not running");
-						serviceErrorLabel.setTextColor(Color.RED);
+						serviceFeedbackLabel.setText("Error: Service not running");
+						serviceFeedbackLabel.setTextColor(Color.RED);
 					}
 				}
 		}		
 	}
 	
     @Override
-    public void onCreate(Bundle savedInstanceState) {
+    public void onCreate(Bundle savedInstanceState) { 
         super.onCreate(savedInstanceState);
         
         setContentView(R.layout.main);
@@ -126,11 +136,11 @@ public class NarwhalNotifier extends Activity {
         frequencySpinner.setOnItemSelectedListener(new FrequencyListener());
         
         serviceButton = (ToggleButton) findViewById(R.id.serviceToggle);
-        serviceButton.setChecked(isMyServiceRunning());
+        serviceButton.setChecked(settings.getBoolean("serviceRunning", false));
         serviceButton.setOnClickListener(new ServiceListener());
         
-        serviceErrorLabel = (TextView) findViewById(R.id.serviceErrorLabel);
-        serviceErrorLabel.setText("");
+        serviceFeedbackLabel = (TextView) findViewById(R.id.serviceErrorLabel);
+        serviceFeedbackLabel.setText("");
     }
     
     @Override
@@ -148,8 +158,31 @@ public class NarwhalNotifier extends Activity {
 			subText.setText("Currently logged in as " + user + " - click to change");
 		}
 	}
+	
+	public void registerService() {
+		//Taken from http://stackoverflow.com/questions/1082437/android-alarmmanager
+		am = (AlarmManager) getSystemService(Context.ALARM_SERVICE);
+		Intent i = new Intent(NarwhalNotifier.this, NarwhalNotifierService.class);
+		PendingIntent pi = PendingIntent.getBroadcast(NarwhalNotifier.this, 0, i, 0);
+		Calendar time = Calendar.getInstance();
+		time.setTimeInMillis(System.currentTimeMillis());
+		time.add(Calendar.SECOND, 5);
+		long interval = settings.getInt("frequency", 5) * 60 * 1000;
+		am.setRepeating(AlarmManager.RTC_WAKEUP, time.getTimeInMillis(), interval, pi);
+		settingsEditor.putBoolean("serviceRunning", true);
+		settingsEditor.commit();
+	}
+	
+	public void unregisterService() {
+		am = (AlarmManager) getSystemService(Context.ALARM_SERVICE);
+		Intent i = new Intent(NarwhalNotifier.this, NarwhalNotifierService.class);
+		PendingIntent pi = PendingIntent.getBroadcast(NarwhalNotifier.this, 0, i, 0);
+		am.cancel(pi);
+		settingsEditor.putBoolean("serviceRunning", false);
+		settingsEditor.commit();
+	}
     
-    private boolean isMyServiceRunning() {
+    /*private boolean isMyServiceRunning() {
         ActivityManager manager = (ActivityManager) getSystemService(ACTIVITY_SERVICE);
         for (RunningServiceInfo service : manager.getRunningServices(Integer.MAX_VALUE)) {
             if ("com.quicklookbusy.narwhalNotifier.NarwhalNotifierService".equals(service.service.getClassName())) {
@@ -157,5 +190,5 @@ public class NarwhalNotifier extends Activity {
             }
         }
         return false;
-    }
+    }*/
 }
