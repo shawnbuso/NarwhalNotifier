@@ -2,6 +2,8 @@ package com.quicklookbusy.narwhalNotifier;
 
 import java.io.BufferedReader;
 import java.io.InputStreamReader;
+import java.text.DecimalFormat;
+import java.text.NumberFormat;
 
 import org.apache.http.HttpResponse;
 import org.apache.http.client.HttpClient;
@@ -87,10 +89,12 @@ public class NarwhalNotifierService extends BroadcastReceiver {
 				Log.d(logTag, "New messages!");
 				
 				JSONObject topMessageData = children.getJSONObject(0).getJSONObject("data");
-				long topMessageTime = topMessageData.getLong("created");
-				Log.d(logTag, "topMessageData: " + topMessageData.toString());
-				
-				Log.d(logTag, "Top message time: " + settings.getString("topMessageTime", ""));
+				Log.d(logTag, "Created: " + topMessageData.getString("created"));
+				String createdString = topMessageData.getString("created");
+				NumberFormat nf = new DecimalFormat("###.##");				
+				long topMessageTime = nf.parse(createdString).longValue();
+				Log.d(logTag, "topMessageData: " + topMessageData.toString());				
+				Log.d(logTag, "Top message time: " + settings.getLong("topMessageTime", 0));
 				Log.d(logTag, "Current message time: " + topMessageTime);
 				if(topMessageTime > settings.getLong("topMessageTime", 0)) {
 					Log.d(logTag, "Notifying");
