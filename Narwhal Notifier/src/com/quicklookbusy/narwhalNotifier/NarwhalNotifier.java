@@ -141,7 +141,7 @@ public class NarwhalNotifier extends Activity {
         serviceButton.setChecked(settings.getBoolean("serviceRunning", false));
         serviceButton.setOnClickListener(new ServiceListener());
         
-        serviceFeedbackLabel = (TextView) findViewById(R.id.serviceErrorLabel);
+        serviceFeedbackLabel = (TextView) findViewById(R.id.serviceFeedbackLabel);
         serviceFeedbackLabel.setText("");
     }
     

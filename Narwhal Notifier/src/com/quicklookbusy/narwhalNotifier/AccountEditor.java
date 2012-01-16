@@ -170,7 +170,7 @@ public class AccountEditor extends Activity {
 		
 		saveButton = (Button) findViewById(R.id.saveButton);
 		logoutButton = (Button) findViewById(R.id.logoutButton);
-		loginFeedbackLabel = (TextView) findViewById(R.id.loginErrorLabel);
+		loginFeedbackLabel = (TextView) findViewById(R.id.loginFeedbackLabel);
 		
 		loginFeedbackLabel.setText("");
 		
