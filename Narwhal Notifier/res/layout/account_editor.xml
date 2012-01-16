@@ -88,13 +88,13 @@
         android:text="Log Out" />
     
     <TextView
-        android:id="@+id/loginErrorLabel"
+        android:id="@+id/loginFeedbackLabel"
         android:layout_width="fill_parent"
         android:layout_height="wrap_content"
         android:layout_marginTop="10dp"
         android:gravity="center_horizontal"
         android:text=""
-        android:textAppearance="?android:attr/textAppearanceLarge"
-        android:textSize="10dp" />
+            android:textAppearance="?android:attr/textAppearanceMedium"
+        android:textSize="20dp" />
 
 </LinearLayout>
