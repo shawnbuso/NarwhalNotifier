@@ -94,6 +94,8 @@ public class AccountEditor extends Activity {
 				if(errors.length() > 0) {
 					loginFeedbackLabel.setText("Error logging you in: " + errors.getJSONArray(0).getString(1));
 					loginFeedbackLabel.setTextColor(Color.RED);
+					passField.setText("");
+					clearUserData();
 					return;
 				}
 				else {
@@ -128,10 +130,7 @@ public class AccountEditor extends Activity {
 				loginFeedbackLabel.setTextColor(Color.RED);				
 			}
 			else {
-				settingsEditor.putString("user", "");
-				settingsEditor.putString("modhash", "");
-				settingsEditor.putString("cookie", "");
-				settingsEditor.commit();
+				clearUserData();
 				unameField.setText("");
 				loginFeedbackLabel.setText("Logged out");
 				loginFeedbackLabel.setTextColor(Color.GREEN);
@@ -188,5 +187,12 @@ public class AccountEditor extends Activity {
 	private void hideKeyboard(View v) {
 		InputMethodManager mgr = (InputMethodManager) getSystemService(Context.INPUT_METHOD_SERVICE);
 		mgr.hideSoftInputFromWindow(v.getWindowToken(), 0);
+	}
+	
+	private void clearUserData() {
+		settingsEditor.putString("user", "");
+		settingsEditor.putString("modhash", "");
+		settingsEditor.putString("cookie", "");
+		settingsEditor.commit();		
 	}
 }
