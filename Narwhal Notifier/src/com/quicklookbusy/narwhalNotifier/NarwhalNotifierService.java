@@ -101,6 +101,7 @@ public class NarwhalNotifierService extends BroadcastReceiver {
 			
 			if(children.length() == 0) {
 				log("No new messages");
+				notificationManager.cancel(NOTIFICATION_ID);
 			}
 			else {
 				log("New messages!");
