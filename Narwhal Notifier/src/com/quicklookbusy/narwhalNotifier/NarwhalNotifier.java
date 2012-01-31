@@ -23,6 +23,7 @@ import android.app.ActivityManager;
 import android.app.ActivityManager.RunningServiceInfo;
 import android.app.AlarmManager;
 import android.app.PendingIntent;
+import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;
 import android.content.SharedPreferences;
@@ -57,6 +58,8 @@ public class NarwhalNotifier extends Activity {
 	
 	AlarmManager am;
 	
+	AlarmHelper ah;
+	
 	public class AccountEditListener implements OnClickListener {
 		
 		public void onClick(View v) {
@@ -73,8 +76,8 @@ public class NarwhalNotifier extends Activity {
 			settingsEditor.commit();
 			if(settings.getBoolean("serviceRunning", false)) {
 				//If service is running, kill it and re-register it with the new frequency
-				unregisterService();
-				registerService();
+				ah.unregisterService();
+				ah.registerService();
 			}
 		}
 
@@ -93,7 +96,7 @@ public class NarwhalNotifier extends Activity {
 						serviceButton.setChecked(false);
 					}
 					else {
-						registerService();
+						ah.registerService();
 						
 						serviceFeedbackLabel.setText("Service started");
 						serviceFeedbackLabel.setTextColor(Color.GREEN);
@@ -102,7 +105,7 @@ public class NarwhalNotifier extends Activity {
 				else {
 					//Kill service
 					if(settings.getBoolean("serviceRunning", false)) {
-						unregisterService();
+						ah.unregisterService();
 						
 						serviceFeedbackLabel.setText("Service stopped");
 						serviceFeedbackLabel.setTextColor(Color.GREEN);
@@ -120,6 +123,8 @@ public class NarwhalNotifier extends Activity {
         super.onCreate(savedInstanceState);
         
         setContentView(R.layout.main);
+        
+        ah = new AlarmHelper(NarwhalNotifier.this);
         
         settings = getSharedPreferences(PREFS_NAME, 0);
         settingsEditor = settings.edit();
@@ -162,8 +167,9 @@ public class NarwhalNotifier extends Activity {
 		}
 	}
 	
-	public void registerService() {
+	/*public void registerService() {
 		//Taken from http://stackoverflow.com/questions/1082437/android-alarmmanager
+		Log.d(logTag, "Registering service");
 		am = (AlarmManager) getSystemService(Context.ALARM_SERVICE);
 		Intent i = new Intent(NarwhalNotifier.this, NarwhalNotifierService.class);
 		PendingIntent pi = PendingIntent.getBroadcast(NarwhalNotifier.this, 0, i, 0);
@@ -174,6 +180,7 @@ public class NarwhalNotifier extends Activity {
 		am.setRepeating(AlarmManager.RTC_WAKEUP, time.getTimeInMillis(), interval, pi);
 		settingsEditor.putBoolean("serviceRunning", true);
 		settingsEditor.commit();
+		Log.d(logTag, "Registered service");
 	}
 	
 	public void unregisterService() {
@@ -183,15 +190,5 @@ public class NarwhalNotifier extends Activity {
 		am.cancel(pi);
 		settingsEditor.putBoolean("serviceRunning", false);
 		settingsEditor.commit();
-	}
-    
-    /*private boolean isMyServiceRunning() {
-        ActivityManager manager = (ActivityManager) getSystemService(ACTIVITY_SERVICE);
-        for (RunningServiceInfo service : manager.getRunningServices(Integer.MAX_VALUE)) {
-            if ("com.quicklookbusy.narwhalNotifier.NarwhalNotifierService".equals(service.service.getClassName())) {
-                return true;
-            }
-        }
-        return false;
-    }*/
+	}*/
 }
