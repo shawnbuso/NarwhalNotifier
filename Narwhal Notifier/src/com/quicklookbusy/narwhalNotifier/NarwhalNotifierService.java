@@ -120,7 +120,7 @@ public class NarwhalNotifierService extends BroadcastReceiver {
 					settingsEditor.putLong("topMessageTime", topMessageTime);
 					settingsEditor.commit();
 					//Taken from http://developer.android.com/guide/topics/ui/notifiers/notifications.html
-					int icon = R.drawable.icon;
+					int icon = R.drawable.notification;
 					CharSequence tickerText = "New reddit message!";
 					long when = System.currentTimeMillis();
 					//Context context = getApplicationContext();
