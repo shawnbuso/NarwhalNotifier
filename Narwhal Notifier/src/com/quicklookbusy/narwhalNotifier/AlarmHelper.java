@@ -45,7 +45,7 @@ public class AlarmHelper extends BroadcastReceiver {
 		//Taken from http://stackoverflow.com/questions/1082437/android-alarmmanager
 		Log.d(logTag, "Registering service");
 		am = (AlarmManager) context.getSystemService(Context.ALARM_SERVICE);
-		Intent i = new Intent(context, NarwhalNotifierService.class);
+		Intent i = new Intent(context, NarwhalNotifierReceiver.class);
 		PendingIntent pi = PendingIntent.getBroadcast(context, 0, i, 0);
 		Calendar time = Calendar.getInstance();
 		time.setTimeInMillis(System.currentTimeMillis());
@@ -59,7 +59,7 @@ public class AlarmHelper extends BroadcastReceiver {
 	
 	public void unregisterService() {
 		am = (AlarmManager) context.getSystemService(Context.ALARM_SERVICE);
-		Intent i = new Intent(context, NarwhalNotifierService.class);
+		Intent i = new Intent(context, NarwhalNotifierReceiver.class);
 		PendingIntent pi = PendingIntent.getBroadcast(context, 0, i, 0);
 		am.cancel(pi);
 		settingsEditor.putBoolean("serviceRunning", false);

@@ -24,7 +24,7 @@
             android:name="com.quicklookbusy.narwhalNotifier.AccountEditor" >
         </activity>
 
-        <receiver android:name="NarwhalNotifierService" />
+        <receiver android:name=".NarwhalNotifierReceiver" />
         
         <receiver android:name="AlarmHelper" >
             <intent-filter >

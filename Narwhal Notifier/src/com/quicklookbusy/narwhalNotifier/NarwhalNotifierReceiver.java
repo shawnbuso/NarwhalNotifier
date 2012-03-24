@@ -32,7 +32,7 @@ import android.os.IBinder;
 import android.text.format.DateFormat;
 import android.util.Log;
 
-public class NarwhalNotifierService extends BroadcastReceiver {
+public class NarwhalNotifierReceiver extends BroadcastReceiver {
 	
 	public static final int NOTIFICATION_ID = 86949977;
 	
