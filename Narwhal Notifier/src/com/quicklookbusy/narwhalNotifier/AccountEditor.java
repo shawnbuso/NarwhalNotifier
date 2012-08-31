@@ -34,6 +34,9 @@ import android.widget.Button;
 import android.widget.EditText;
 import android.widget.TextView;
 
+import com.google.ads.AdRequest;
+import com.google.ads.AdView;
+
 public class AccountEditor extends Activity {
 
 	String logTag = "AccountEditor";
@@ -176,6 +179,9 @@ public class AccountEditor extends Activity {
 		saveButton.setOnClickListener(new SaveListener());
 		
 		logoutButton.setOnClickListener(new LogoutListener());
+        
+        AdView adView = (AdView)this.findViewById(R.id.adView);
+        adView.loadAd(new AdRequest());
 	}
 	
 	private void showKeyboard(EditText et) {

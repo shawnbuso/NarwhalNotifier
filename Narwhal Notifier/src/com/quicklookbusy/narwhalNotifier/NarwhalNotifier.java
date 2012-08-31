@@ -1,36 +1,12 @@
 package com.quicklookbusy.narwhalNotifier;
 
-import java.io.BufferedReader;
-import java.io.InputStreamReader;
-import java.util.ArrayList;
-import java.util.Calendar;
-import java.util.List;
-
-import org.apache.http.HttpResponse;
-import org.apache.http.NameValuePair;
-import org.apache.http.client.HttpClient;
-import org.apache.http.client.entity.UrlEncodedFormEntity;
-import org.apache.http.client.methods.HttpGet;
-import org.apache.http.client.methods.HttpPost;
-import org.apache.http.impl.client.DefaultHttpClient;
-import org.apache.http.message.BasicNameValuePair;
-import org.apache.http.params.HttpConnectionParams;
-import org.json.JSONObject;
-import org.json.JSONTokener;
-
 import android.app.Activity;
-import android.app.ActivityManager;
-import android.app.ActivityManager.RunningServiceInfo;
 import android.app.AlarmManager;
-import android.app.PendingIntent;
-import android.content.BroadcastReceiver;
-import android.content.Context;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.content.SharedPreferences.Editor;
 import android.graphics.Color;
 import android.os.Bundle;
-import android.util.Log;
 import android.view.View;
 import android.view.View.OnClickListener;
 import android.widget.AdapterView;
@@ -40,6 +16,9 @@ import android.widget.LinearLayout;
 import android.widget.Spinner;
 import android.widget.TextView;
 import android.widget.ToggleButton;
+
+import com.google.ads.AdRequest;
+import com.google.ads.AdView;
 
 public class NarwhalNotifier extends Activity {
 	
@@ -132,7 +111,6 @@ public class NarwhalNotifier extends Activity {
         LinearLayout accountEditTrigger = (LinearLayout) findViewById(R.id.accountEditTrigger);
         accountEditTrigger.setOnClickListener(new AccountEditListener());
         
-        TextView subText = (TextView) findViewById(R.id.accountSubtext);
         syncSubtext();
         
         frequencySpinner = (Spinner) findViewById(R.id.frequencySpinner);
@@ -148,6 +126,9 @@ public class NarwhalNotifier extends Activity {
         
         serviceFeedbackLabel = (TextView) findViewById(R.id.serviceFeedbackLabel);
         serviceFeedbackLabel.setText("");
+        
+        AdView adView = (AdView)this.findViewById(R.id.adView);
+        adView.loadAd(new AdRequest());
     }
     
     @Override
@@ -166,29 +147,4 @@ public class NarwhalNotifier extends Activity {
 			subText.setText("Currently logged in as " + user + " - click to change");
 		}
 	}
-	
-	/*public void registerService() {
-		//Taken from http://stackoverflow.com/questions/1082437/android-alarmmanager
-		Log.d(logTag, "Registering service");
-		am = (AlarmManager) getSystemService(Context.ALARM_SERVICE);
-		Intent i = new Intent(NarwhalNotifier.this, NarwhalNotifierService.class);
-		PendingIntent pi = PendingIntent.getBroadcast(NarwhalNotifier.this, 0, i, 0);
-		Calendar time = Calendar.getInstance();
-		time.setTimeInMillis(System.currentTimeMillis());
-		time.add(Calendar.SECOND, 5);
-		long interval = settings.getInt("frequency", 5) * 60 * 1000;
-		am.setRepeating(AlarmManager.RTC_WAKEUP, time.getTimeInMillis(), interval, pi);
-		settingsEditor.putBoolean("serviceRunning", true);
-		settingsEditor.commit();
-		Log.d(logTag, "Registered service");
-	}
-	
-	public void unregisterService() {
-		am = (AlarmManager) getSystemService(Context.ALARM_SERVICE);
-		Intent i = new Intent(NarwhalNotifier.this, NarwhalNotifierService.class);
-		PendingIntent pi = PendingIntent.getBroadcast(NarwhalNotifier.this, 0, i, 0);
-		am.cancel(pi);
-		settingsEditor.putBoolean("serviceRunning", false);
-		settingsEditor.commit();
-	}*/
 }
