@@ -1,3 +1,11 @@
+/*
+ * AccountEditor.java
+ * 
+ * Defines the class which controls the Activity used to log in and out of the user's account
+ * 
+ * Copyright (C) Shawn Busolits, 2012 All Rights Reserved
+ */
+
 package com.quicklookbusy.narwhalNotifier;
 
 import java.io.BufferedReader;
@@ -37,20 +45,43 @@ import android.widget.TextView;
 import com.google.ads.AdRequest;
 import com.google.ads.AdView;
 
+/**
+ * An extension of Activity which presents and controls the account editing screen
+ * @author Shawn Busolits
+ * @version 1.0
+ */
 public class AccountEditor extends Activity {
 
+	/** Tag for log messages */
 	String logTag = "AccountEditor";
 	
+	/** Field containing the username */
 	EditText unameField;
+	/** Field containing the password for the user */
 	EditText passField;
+	/** Button used to save info */
 	Button saveButton;
+	/** Button used to log out */
 	Button logoutButton;
+	/** Label used to give results of logging in or out */
 	TextView loginFeedbackLabel;
 	
+	/** Used to store state about the app */
 	SharedPreferences settings;
+	/** Used to edit state about the app */
 	Editor settingsEditor;
 
+	/**
+	 * Listens for clicks on the Save button
+	 * @author Shawn Busolits
+	 * @version 1.0
+	 */
 	public class SaveListener implements OnClickListener {
+		
+		/**
+		 * Called when the user clicks the Save button
+		 * @param v The view clicked to call this method
+		 */
 		public void onClick(View v) {
 			hideKeyboard(v);
 			/*
@@ -124,8 +155,17 @@ public class AccountEditor extends Activity {
 		}
 	}
 	
+	/**
+	 * Listens for clicks on the Logout button
+	 * @author Shawn Busolits
+	 * @version 1.0
+	 */
 	public class LogoutListener implements OnClickListener {
 
+		/**
+		 * Called when the user clicks the Logout button
+		 * @param v The view clicked to call this method
+		 */
 		public void onClick(View v) {
 			hideKeyboard(v);
 			if(settings.getBoolean("serviceRunning", true)) {
@@ -142,15 +182,30 @@ public class AccountEditor extends Activity {
 		
 	}
 	
+	/**
+	 * Listens for focus on the text fields
+	 * @author Shawn Busolits
+	 * @version 1.0
+	 */
 	public class EditTextFocusListener implements OnFocusChangeListener {
 
+		/**
+		 * Called when the text field changes focus
+		 * @param v View on which the focus changed
+		 * @param hasFocus True if the field gained focus, false if it lost focus
+		 */
 		public void onFocusChange(View v, boolean hasFocus) {
 			if(hasFocus) {
 				showKeyboard((EditText) v);
+			} else {
+				hideKeyboard((EditText) v);
 			}
 		}
 	}
 
+	/**
+	 * {@inheritDoc}
+	 */
 	@Override
 	public void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
@@ -183,18 +238,29 @@ public class AccountEditor extends Activity {
         AdView adView = (AdView)this.findViewById(R.id.adView);
         adView.loadAd(new AdRequest());
 	}
-	
+
+	/**
+	 * Shows the virtual keyboard
+	 * @param et Text field to have focus
+	 */
 	private void showKeyboard(EditText et) {
 		InputMethodManager mgr = (InputMethodManager) getSystemService(Context.INPUT_METHOD_SERVICE);
 		// only will trigger it if no physical keyboard is open
 		mgr.showSoftInput(et, InputMethodManager.SHOW_IMPLICIT);
 	}
 	
+	/** Hides the virtual keyboard
+	 * @param v View that lost focus
+	 */
 	private void hideKeyboard(View v) {
 		InputMethodManager mgr = (InputMethodManager) getSystemService(Context.INPUT_METHOD_SERVICE);
 		mgr.hideSoftInputFromWindow(v.getWindowToken(), 0);
 	}
 	
+	/**
+	 * Clears the user data stored in the saved app state
+	 * Used to "log out" the user
+	 */
 	private void clearUserData() {
 		settingsEditor.putString("user", "");
 		settingsEditor.putString("modhash", "");

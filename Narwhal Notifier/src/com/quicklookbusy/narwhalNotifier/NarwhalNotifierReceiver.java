@@ -1,3 +1,11 @@
+/*
+ * NarwhalNotifierReceiver.java
+ * 
+ * Defines the class that receives the alarm from the AlarmManager to check for new messages
+ * 
+ * Copyright (C) Shawn Busolits, 2012 All Rights Reserved
+ */
+
 package com.quicklookbusy.narwhalNotifier;
 
 import java.io.BufferedReader;
@@ -29,19 +37,35 @@ import android.content.SharedPreferences.Editor;
 import android.net.Uri;
 import android.util.Log;
 
+/**
+ * An extension of BroadcastReceiver used to check for unread messages
+ * @author Shawn Busolits
+ * @version 1.0
+ */
 public class NarwhalNotifierReceiver extends BroadcastReceiver {
 	
+	/** ID used to send notifications */
 	public static final int NOTIFICATION_ID = 86949977;
 	
+	/** Holds state about whether the service is running */
 	volatile boolean runService;
 	
+	/** Used to send notifications to the user */
 	NotificationManager notificationManager;
 	
+	/** Tag for log messages */
 	String logTag = "NarwhalNotifierService";
 	
+	/** Used to store state about the app */
 	SharedPreferences settings;
+	/** Used to edit state about the app */
 	Editor settingsEditor;
 	
+	/**
+	 * Called by the AlarmManager. Checks if the user has any unread messages
+	 * @param context Context of the app
+	 * @param i Intent of the caller
+	 */
 	@Override
 	public void onReceive(Context context, Intent i) {
 		log("Alarm went off!");
@@ -59,6 +83,10 @@ public class NarwhalNotifierReceiver extends BroadcastReceiver {
         update(context);		
 	}
 	
+	/**
+	 * Checks if the user has any unread messages
+	 * @param context Context of the app
+	 */
 	private void update(Context context) {
 		log("In loop");
 		//Taken from http://stackoverflow.com/questions/693997/how-to-set-httpresponse-timeout-for-android-in-java
@@ -92,6 +120,7 @@ public class NarwhalNotifierReceiver extends BroadcastReceiver {
 			
 			JSONObject data = jsonResult.getJSONObject("data");
 			settingsEditor.putString("modhash", data.getString("modhash"));
+			settingsEditor.commit();
 			
 			JSONArray children = data.getJSONArray("children");
 			
@@ -142,6 +171,10 @@ public class NarwhalNotifierReceiver extends BroadcastReceiver {
 		}
 	}
 	
+	/**
+	 * Log to logcat
+	 * @param s String to write to logcat
+	 */
 	private void log(String s) {
 		SimpleDateFormat df = new SimpleDateFormat("HH:mm:ss");
 		Date date = new Date();
