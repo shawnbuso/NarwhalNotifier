@@ -23,8 +23,6 @@
             android:id="@+id/separator"
             android:layout_width="fill_parent"
             android:layout_height="1dip"
-            android:layout_alignParentTop="true"
-            android:layout_centerVertical="true"
             android:layout_marginBottom="10dp"
             android:layout_marginTop="10dp"
             android:background="#888888" />
@@ -47,7 +45,7 @@
             android:id="@+id/frequencyPrompt"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:text="Polling frequency, in minutes:"
+            android:text="@string/frequency_label"
             android:textAppearance="?android:attr/textAppearanceLarge" />
 
         <Spinner

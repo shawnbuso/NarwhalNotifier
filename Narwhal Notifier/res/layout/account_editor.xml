@@ -15,7 +15,7 @@
             android:layout_height="wrap_content"
             android:layout_marginTop="10dp"
             android:gravity="center_horizontal"
-            android:text="Account Details"
+            android:text="@string/account_label"
             android:textAppearance="?android:attr/textAppearanceLarge"
             android:textSize="30dp" />
 
@@ -23,8 +23,6 @@
             android:id="@+id/separator"
             android:layout_width="fill_parent"
             android:layout_height="1dip"
-            android:layout_alignParentTop="true"
-            android:layout_centerVertical="true"
             android:layout_marginBottom="10dp"
             android:layout_marginTop="10dp"
             android:background="#888888" />
@@ -41,14 +39,16 @@
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:layout_marginRight="10dp"
-                android:text="Username: "
+                android:text="@string/username_label"
                 android:textAppearance="?android:attr/textAppearanceMedium" />
 
             <EditText
                 android:id="@+id/unameField"
-                android:layout_width="wrap_content"
+                android:layout_width="0dip"
                 android:layout_height="wrap_content"
-                android:layout_weight="1" />
+                android:layout_weight="1"
+                android:hint="@string/username_hint"
+                android:inputType="text" />
         </LinearLayout>
 
         <LinearLayout
@@ -63,12 +63,12 @@
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:layout_marginRight="10dp"
-                android:text="Password: "
+                android:text="@string/password_label"
                 android:textAppearance="?android:attr/textAppearanceMedium" />
 
             <EditText
                 android:id="@+id/passField"
-                android:layout_width="wrap_content"
+                android:layout_width="0dip"
                 android:layout_height="wrap_content"
                 android:layout_weight="1"
                 android:inputType="textPassword" />
@@ -81,7 +81,7 @@
             android:layout_marginLeft="7dp"
             android:layout_marginRight="7dp"
             android:layout_marginTop="10dp"
-            android:text="Save" />
+            android:text="@string/save" />
 
         <Button
             android:id="@+id/logoutButton"
@@ -90,7 +90,7 @@
             android:layout_marginLeft="7dp"
             android:layout_marginRight="7dp"
             android:layout_marginTop="10dp"
-            android:text="Log Out" />
+            android:text="@string/logout" />
 
         <TextView
             android:id="@+id/loginFeedbackLabel"
