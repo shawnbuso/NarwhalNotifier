@@ -35,6 +35,7 @@ import android.content.Intent;
 import android.content.SharedPreferences;
 import android.content.SharedPreferences.Editor;
 import android.net.Uri;
+import android.support.v4.app.NotificationCompat;
 import android.util.Log;
 
 /**
@@ -156,8 +157,16 @@ public class NarwhalNotifierReceiver extends BroadcastReceiver {
 					Intent notificationIntent = new Intent(Intent.ACTION_VIEW, Uri.parse("http://www.reddit.com/message/unread"));
 					PendingIntent contentIntent = PendingIntent.getActivity(context, 0, notificationIntent, 0);
 					
-					Notification notification = new Notification(icon, tickerText, when);
-					notification.setLatestEventInfo(context, contentTitle, contentText, contentIntent);
+					//DEPRECATED - Notification notification = new Notification(icon, tickerText, when);
+					//DEPRECATED - notification.setLatestEventInfo(context, contentTitle, contentText, contentIntent);
+					NotificationCompat.Builder builder = new NotificationCompat.Builder(context);
+					builder.setContentTitle(contentTitle)
+						.setTicker(tickerText)
+						.setContentText(contentText)
+						.setSmallIcon(icon)
+						.setContentIntent(contentIntent)
+						.setWhen(when);
+					Notification notification = builder.build();
 					notification.defaults |= Notification.DEFAULT_SOUND;
 					notification.defaults |= Notification.DEFAULT_VIBRATE;
 					notification.flags |= Notification.FLAG_AUTO_CANCEL;
