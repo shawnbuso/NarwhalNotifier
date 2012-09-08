@@ -1,98 +1,103 @@
+/*
+ * NarwhalNotifier.java
+ * 
+ * Defines the main class which controls the main view when the app is launched
+ * 
+ * Copyright (C) Shawn Busolits, 2012 All Rights Reserved
+ */
+
 package com.quicklookbusy.narwhalNotifier;
 
-import java.io.BufferedReader;
-import java.io.InputStreamReader;
-import java.util.ArrayList;
-import java.util.Calendar;
-import java.util.List;
-
-import org.apache.http.HttpResponse;
-import org.apache.http.NameValuePair;
-import org.apache.http.client.HttpClient;
-import org.apache.http.client.entity.UrlEncodedFormEntity;
-import org.apache.http.client.methods.HttpGet;
-import org.apache.http.client.methods.HttpPost;
-import org.apache.http.impl.client.DefaultHttpClient;
-import org.apache.http.message.BasicNameValuePair;
-import org.apache.http.params.HttpConnectionParams;
-import org.json.JSONObject;
-import org.json.JSONTokener;
-
 import android.app.Activity;
-import android.app.ActivityManager;
-import android.app.ActivityManager.RunningServiceInfo;
-import android.app.AlarmManager;
-import android.app.PendingIntent;
-import android.content.BroadcastReceiver;
-import android.content.Context;
 import android.content.Intent;
 import android.content.SharedPreferences;
-import android.content.SharedPreferences.Editor;
 import android.graphics.Color;
 import android.os.Bundle;
-import android.util.Log;
 import android.view.View;
 import android.view.View.OnClickListener;
-import android.widget.AdapterView;
-import android.widget.AdapterView.OnItemSelectedListener;
-import android.widget.ArrayAdapter;
 import android.widget.LinearLayout;
-import android.widget.Spinner;
 import android.widget.TextView;
 import android.widget.ToggleButton;
 
+import com.google.ads.AdRequest;
+import com.google.ads.AdView;
+
+/**
+ * An extension of Activity which presents and controls the main app screen
+ * @author Shawn Busolits
+ * @version 1.0
+ */
 public class NarwhalNotifier extends Activity {
 	
+	/** Used to obtain the SharedPreferences for the app */
 	public static final String PREFS_NAME = "NarwhalNotifierPrefs";
 	
+	/** Button used to turn the service off and on */
 	ToggleButton serviceButton;
-	Spinner frequencySpinner;
+	/** Label used to give feedback about starting and stopping the service */
 	TextView serviceFeedbackLabel;
 	
+	/** Tag for log statements */
 	String logTag = "NarwhalNotifier";
 	
-	Intent service;
-	
+	/** Used to store state */
 	SharedPreferences settings;
-	Editor settingsEditor;
 	
-	AlarmManager am;
-	
+	/** Used to register or unregister our service */
 	AlarmHelper ah;
 	
+	/**
+	 * Listens for clicks on the "Edit Account" view
+	 * @author Shawn Busolits
+	 * @version 1.0
+	 */
 	public class AccountEditListener implements OnClickListener {
 		
+		/**
+		 * Called when the user clicks the "Edit Accout" view, and launches the
+		 * Activity for editing the user account
+		 * @param v View clicked to call this method
+		 */
 		public void onClick(View v) {
 			Intent accountActivity = new Intent(NarwhalNotifier.this, AccountEditor.class);
 			startActivity(accountActivity);
 		}
 	}
 	
-	public class FrequencyListener implements OnItemSelectedListener {
-
-		public void onItemSelected(AdapterView<?> av, View v, int i, long l) {
-			settingsEditor.putInt("frequency", Integer.parseInt(frequencySpinner.getSelectedItem().toString()));
-			settingsEditor.putInt("frequencyIndex", frequencySpinner.getSelectedItemPosition());
-			settingsEditor.commit();
-			if(settings.getBoolean("serviceRunning", false)) {
-				//If service is running, kill it and re-register it with the new frequency
-				ah.unregisterService();
-				ah.registerService();
-			}
-		}
-
-		public void onNothingSelected(AdapterView<?> arg0) {
-			//Do nothing
+	/**
+	 * Listens for clicks on the "Options" view
+	 * @author Shawn Busolits
+	 * @version 1.0
+	 */
+	public class OptionsListener implements OnClickListener {
+		
+		/**
+		 * Called when the user clicks the "Options" view, and launches the
+		 * Activity for editing options
+		 * @param v View clicked to call this method
+		 */
+		public void onClick(View v) {
+			Intent optionsActivity = new Intent(NarwhalNotifier.this, Options.class);
+			startActivity(optionsActivity);
 		}
 	}
 	
+	/**
+	 * Listens for clicks on the service toggle button
+	 * @author Shawn Busolits
+	 * @version 1.0
+	 */
 	public class ServiceListener implements OnClickListener {
 
+		/**
+		 * Called when the button is clicked
+		 * @param v The view that was clicked
+		 */
 		public void onClick(View v) {
 				if(serviceButton.isChecked()) {					
 					if(settings.getString("user", "").equals("")) {
 						serviceFeedbackLabel.setText("Error: No user logged in");
-						serviceFeedbackLabel.setTextColor(Color.RED);
+						serviceFeedbackLabel.setTextColor(Color.YELLOW);
 						serviceButton.setChecked(false);
 					}
 					else {
@@ -108,16 +113,19 @@ public class NarwhalNotifier extends Activity {
 						ah.unregisterService();
 						
 						serviceFeedbackLabel.setText("Service stopped");
-						serviceFeedbackLabel.setTextColor(Color.GREEN);
+						serviceFeedbackLabel.setTextColor(Color.RED);
 					}
 					else {
 						serviceFeedbackLabel.setText("Error: Service not running");
-						serviceFeedbackLabel.setTextColor(Color.RED);
+						serviceFeedbackLabel.setTextColor(Color.YELLOW);
 					}
 				}
 		}		
 	}
 	
+	/**
+	 * {@inheritDoc}
+	 */
     @Override
     public void onCreate(Bundle savedInstanceState) { 
         super.onCreate(savedInstanceState);
@@ -127,20 +135,15 @@ public class NarwhalNotifier extends Activity {
         ah = new AlarmHelper(NarwhalNotifier.this);
         
         settings = getSharedPreferences(PREFS_NAME, 0);
-        settingsEditor = settings.edit();
         
         LinearLayout accountEditTrigger = (LinearLayout) findViewById(R.id.accountEditTrigger);
         accountEditTrigger.setOnClickListener(new AccountEditListener());
         
-        TextView subText = (TextView) findViewById(R.id.accountSubtext);
         syncSubtext();
         
-        frequencySpinner = (Spinner) findViewById(R.id.frequencySpinner);
-        ArrayAdapter<CharSequence> adapter = ArrayAdapter.createFromResource(this, R.array.planets_array, android.R.layout.simple_spinner_item);
-        adapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
-        frequencySpinner.setAdapter(adapter);
-        frequencySpinner.setSelection(settings.getInt("frequencyIndex", 2), true);
-        frequencySpinner.setOnItemSelectedListener(new FrequencyListener());
+        TextView optionsTrigger = (TextView) findViewById(R.id.optionsTrigger);
+        optionsTrigger.setOnClickListener(new OptionsListener());
+        
         
         serviceButton = (ToggleButton) findViewById(R.id.serviceToggle);
         serviceButton.setChecked(settings.getBoolean("serviceRunning", false));
@@ -148,15 +151,32 @@ public class NarwhalNotifier extends Activity {
         
         serviceFeedbackLabel = (TextView) findViewById(R.id.serviceFeedbackLabel);
         serviceFeedbackLabel.setText("");
+        
+        AdView adView = (AdView)this.findViewById(R.id.adView);
+        adView.loadAd(new AdRequest());
     }
     
+    /**
+     * {@inheritDoc}
+     */
     @Override
     public void onResume() {
     	super.onResume();
     	syncSubtext();
-    	serviceFeedbackLabel.setText("");
+        
+        if(settings.getBoolean("serviceRunning", false)) {
+        	serviceFeedbackLabel.setText("Service is running");
+			serviceFeedbackLabel.setTextColor(Color.GREEN);
+        } else {
+        	serviceFeedbackLabel.setText("Service is NOT running");
+			serviceFeedbackLabel.setTextColor(Color.RED);
+        }
     }
     
+    /**
+     * Sets the subtext for the Edit Account view to show the username of the currently
+     * logged in user, or show that no user is logged in.
+     */
 	private void syncSubtext() {
 		TextView subText = (TextView) findViewById(R.id.accountSubtext);
 		String user = settings.getString("user", "");
@@ -166,29 +186,4 @@ public class NarwhalNotifier extends Activity {
 			subText.setText("Currently logged in as " + user + " - click to change");
 		}
 	}
-	
-	/*public void registerService() {
-		//Taken from http://stackoverflow.com/questions/1082437/android-alarmmanager
-		Log.d(logTag, "Registering service");
-		am = (AlarmManager) getSystemService(Context.ALARM_SERVICE);
-		Intent i = new Intent(NarwhalNotifier.this, NarwhalNotifierService.class);
-		PendingIntent pi = PendingIntent.getBroadcast(NarwhalNotifier.this, 0, i, 0);
-		Calendar time = Calendar.getInstance();
-		time.setTimeInMillis(System.currentTimeMillis());
-		time.add(Calendar.SECOND, 5);
-		long interval = settings.getInt("frequency", 5) * 60 * 1000;
-		am.setRepeating(AlarmManager.RTC_WAKEUP, time.getTimeInMillis(), interval, pi);
-		settingsEditor.putBoolean("serviceRunning", true);
-		settingsEditor.commit();
-		Log.d(logTag, "Registered service");
-	}
-	
-	public void unregisterService() {
-		am = (AlarmManager) getSystemService(Context.ALARM_SERVICE);
-		Intent i = new Intent(NarwhalNotifier.this, NarwhalNotifierService.class);
-		PendingIntent pi = PendingIntent.getBroadcast(NarwhalNotifier.this, 0, i, 0);
-		am.cancel(pi);
-		settingsEditor.putBoolean("serviceRunning", false);
-		settingsEditor.commit();
-	}*/
 }

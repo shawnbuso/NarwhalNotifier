@@ -1,3 +1,12 @@
+/*
+ * AlarmHelper.java
+ * 
+ * Defines the class which is used to register with the AlarmManager and 
+ * catches the boot broadcast to register the service at boot.
+ * 
+ * Copyright (C) Shawn Busolits, 2012 All Rights Reserved
+ */
+
 package com.quicklookbusy.narwhalNotifier;
 
 import java.util.Calendar;
@@ -11,18 +20,33 @@ import android.content.SharedPreferences;
 import android.content.SharedPreferences.Editor;
 import android.util.Log;
 
+/**
+ * An extension of BroadcastReceiver which is used to register with the 
+ * AlarmManager and catches the boot broadcast to register the service at boot.
+ * @author Shawn Busolits
+ * @version 1.0
+ */
 public class AlarmHelper extends BroadcastReceiver {
 	
+	/** Context of the ap */
 	Context context;
+	/** Used to store app state */
 	SharedPreferences settings;
+	/** Used to edit stored app state */
 	Editor settingsEditor;
 	
+	/** Used to register the service */
 	AlarmManager am;
 	
+	/** Log tag */
 	String logTag = "AlarmHelper";
 	
+	/** Null constructor */
 	public AlarmHelper() {}
 	
+	/** Initializes the AlarmHelper with the settings and settings editor
+	 * @param c Context of the app
+	 */
 	public AlarmHelper(Context c)
 	{
 		context = c;
@@ -30,6 +54,12 @@ public class AlarmHelper extends BroadcastReceiver {
         settingsEditor = settings.edit();
 	}
 
+	/**
+	 * Catches the boot broadcast and registers the service IF it was registered 
+	 * when the phone was last shut down
+	 * @param c Cotnext of the ap
+	 * @param i Intent calling this method
+	 */
 	@Override
 	public void onReceive(Context c, Intent i) {
 		Log.d(logTag, "Caught boot");
@@ -41,6 +71,9 @@ public class AlarmHelper extends BroadcastReceiver {
 		}
 	}
 	
+	/**
+	 * Registers the service with the AlarmManager
+	 */
 	public void registerService() {
 		//Taken from http://stackoverflow.com/questions/1082437/android-alarmmanager
 		Log.d(logTag, "Registering service");
@@ -57,6 +90,9 @@ public class AlarmHelper extends BroadcastReceiver {
 		Log.d(logTag, "Registered service");
 	}
 	
+	/**
+	 * Removes the service from registration with the AlarmManager
+	 */
 	public void unregisterService() {
 		am = (AlarmManager) context.getSystemService(Context.ALARM_SERVICE);
 		Intent i = new Intent(context, NarwhalNotifierReceiver.class);

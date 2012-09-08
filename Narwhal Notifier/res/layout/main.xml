@@ -1,83 +1,98 @@
 <?xml version="1.0" encoding="utf-8"?>
-<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+<!-- 
+	main.xml
+	Defines the layout for the main screen
+	Copyright (C) Shawn Busolits, 2012 All Rights Reserved
+ -->
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:ads="http://schemas.android.com/apk/lib/com.google.ads"
     android:layout_width="fill_parent"
-    android:layout_height="fill_parent"
-    android:orientation="vertical" >
+    android:layout_height="fill_parent" >
 
-    <TextView
-        android:id="@+id/title"
+    <LinearLayout
         android:layout_width="fill_parent"
         android:layout_height="wrap_content"
-        android:gravity="center_horizontal"
-        android:text="@string/app_name"
-		android:textSize="40dp" 
-		android:layout_marginTop="10dp"
-		android:layout_marginBottom="10dp"/>
+        android:orientation="vertical" >
 
-    <View
-        android:id="@+id/separator"
-        android:layout_width="fill_parent"
-        android:layout_height="1dip"
-        android:layout_alignParentTop="true"
-        android:layout_centerVertical="true"
-        android:background="#888888" 
-		android:layout_marginTop="10dp"
-		android:layout_marginBottom="10dp"/>
+        <TextView
+            android:id="@+id/title"
+            android:layout_width="fill_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginBottom="10dp"
+            android:layout_marginTop="10dp"
+            android:gravity="center_horizontal"
+            android:text="@string/app_name"
+            android:textSize="40dp" />
 
-    <include layout="@layout/list_item"
-        android:id="@+id/accountEditTrigger" 
-		android:layout_marginTop="10dp"
-		android:layout_marginBottom="10dp"/>
-    
-    <View
-        android:id="@id/separator"
-        android:layout_width="fill_parent"
-        android:layout_height="1dip"
-        android:layout_alignParentTop="true"
-        android:layout_centerVertical="true"
-        android:background="#888888" 
-		android:layout_marginTop="10dp"
-		android:layout_marginBottom="10dp"/>
-    
-    <TextView
-        android:id="@+id/frequencyPrompt"
+        <View
+            android:id="@+id/separator"
+            android:layout_width="fill_parent"
+            android:layout_height="1dip"
+            android:layout_marginBottom="10dp"
+            android:layout_marginTop="10dp"
+            android:background="#888888" />
+
+        <include
+            android:id="@+id/accountEditTrigger"
+            android:clickable="true"
+            android:layout_marginBottom="10dp"
+            android:layout_marginTop="10dp"
+            layout="@layout/list_item" />
+
+        <View
+            android:id="@id/separator"
+            android:layout_width="fill_parent"
+            android:layout_height="1dip"
+            android:layout_marginBottom="10dp"
+            android:layout_marginTop="10dp"
+            android:background="#888888" />
+
+        <TextView
+            android:id="@+id/optionsTrigger"
+            android:layout_width="fill_parent"
+            android:layout_height="wrap_content"
+            android:layout_gravity="center"
+            android:gravity="center"
+            android:clickable="true"
+            android:text="@string/options_label"
+            android:textAppearance="?android:attr/textAppearanceLarge" />
+
+        <View
+            android:id="@id/separator"
+            android:layout_width="fill_parent"
+            android:layout_height="1dip"
+            android:layout_marginBottom="10dp"
+            android:layout_marginTop="10dp"
+            android:background="#888888" />
+
+        <ToggleButton
+            android:id="@+id/serviceToggle"
+            android:layout_width="fill_parent"
+            android:layout_height="75dp"
+            android:layout_marginBottom="10dp"
+            android:layout_marginTop="10dp"
+            android:textOff="Enable Service"
+            android:textOn="Disable Service" />
+
+        <TextView
+            android:id="@+id/serviceFeedbackLabel"
+            android:layout_width="fill_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="10dp"
+            android:gravity="center_horizontal"
+            android:text=""
+            android:textAppearance="?android:attr/textAppearanceLarge"
+            android:textSize="20dp" />
+    </LinearLayout>
+
+    <com.google.ads.AdView
+        android:id="@+id/adView"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:text="Polling frequency, in minutes:"
-        android:textAppearance="?android:attr/textAppearanceLarge" />
+        android:layout_alignParentBottom="true"
+        ads:adSize="BANNER"
+        ads:adUnitId="a150413013a50f7"
+        ads:loadAdOnCreate="true"
+        ads:testDevices="37fbe150be35944a" />
 
-    <Spinner
-        android:id="@+id/frequencySpinner"
-        android:layout_width="fill_parent"
-        android:layout_height="wrap_content" />
-    
-    <View
-        android:id="@id/separator"
-        android:layout_width="fill_parent"
-        android:layout_height="1dip"
-        android:layout_alignParentTop="true"
-        android:layout_centerVertical="true"
-        android:background="#888888" 
-		android:layout_marginTop="10dp"
-		android:layout_marginBottom="10dp"/>
-
-    <ToggleButton
-        android:id="@+id/serviceToggle"
-        android:layout_width="fill_parent"
-        android:layout_height="75dp"
-        android:textOff="Enable Service"
-        android:textOn="Disable Service" 
-		android:layout_marginTop="10dp"
-		android:layout_marginBottom="10dp"/>
-    
-    <TextView
-        android:id="@+id/serviceFeedbackLabel"
-        android:layout_width="fill_parent"
-        android:layout_height="wrap_content"
-        android:layout_marginTop="10dp"
-        android:gravity="center_horizontal"
-        android:text=""
-        android:textAppearance="?android:attr/textAppearanceLarge"
-        android:textSize="20dp" />
-
-</LinearLayout>
+</RelativeLayout>
