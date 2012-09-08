@@ -87,8 +87,14 @@ public class NarwhalNotifierReceiver extends BroadcastReceiver {
 		 * hitter.start();
 		 */
 
-		update(context, false);
-		update(context, true);
+		log("checkMessages is " + settings.getBoolean("checkMessages", false));
+		if(settings.getBoolean("checkMessages", false)) {
+			update(context, false);
+		}
+		log("checkModmail is " + settings.getBoolean("checkModmail", false));
+		if(settings.getBoolean("checkModmail", false)) {
+			update(context, true);
+		}
 	}
 
 	/**
@@ -184,7 +190,7 @@ public class NarwhalNotifierReceiver extends BroadcastReceiver {
 				int numMessages;
 				if (children.length() == 0) {
 					log("No new messages");
-					notificationManager.cancel(NOTIFICATION_ID);
+					notificationManager.cancel(notificationID);
 					numMessages = 0;
 				} else {
 					log("New messages!");

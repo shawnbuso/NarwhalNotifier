@@ -11,16 +11,11 @@ package com.quicklookbusy.narwhalNotifier;
 import android.app.Activity;
 import android.content.Intent;
 import android.content.SharedPreferences;
-import android.content.SharedPreferences.Editor;
 import android.graphics.Color;
 import android.os.Bundle;
 import android.view.View;
 import android.view.View.OnClickListener;
-import android.widget.AdapterView;
-import android.widget.AdapterView.OnItemSelectedListener;
-import android.widget.ArrayAdapter;
 import android.widget.LinearLayout;
-import android.widget.Spinner;
 import android.widget.TextView;
 import android.widget.ToggleButton;
 
@@ -39,8 +34,6 @@ public class NarwhalNotifier extends Activity {
 	
 	/** Button used to turn the service off and on */
 	ToggleButton serviceButton;
-	/** Used to change the frequency with which the app will check for unread messages */
-	Spinner frequencySpinner;
 	/** Label used to give feedback about starting and stopping the service */
 	TextView serviceFeedbackLabel;
 	
@@ -49,8 +42,6 @@ public class NarwhalNotifier extends Activity {
 	
 	/** Used to store state */
 	SharedPreferences settings;
-	/** Used to edit stored app state */
-	Editor settingsEditor;
 	
 	/** Used to register or unregister our service */
 	AlarmHelper ah;
@@ -74,39 +65,20 @@ public class NarwhalNotifier extends Activity {
 	}
 	
 	/**
-	 * Listens for changes to the frequency spinner
+	 * Listens for clicks on the "Options" view
 	 * @author Shawn Busolits
 	 * @version 1.0
 	 */
-	public class FrequencyListener implements OnItemSelectedListener {
-
+	public class OptionsListener implements OnClickListener {
+		
 		/**
-		 * Called when the user selects a frequency from the frequency spinner
-		 * @param av AdapterView where the selection happened
-		 * @param v View selected to call this method
-		 * @param i Position of the selected item (unused)
-		 * @param l Row id of the item selected (unused)
+		 * Called when the user clicks the "Options" view, and launches the
+		 * Activity for editing options
+		 * @param v View clicked to call this method
 		 */
-		public void onItemSelected(AdapterView<?> av, View v, int i, long l) {
-			settingsEditor.putInt("frequency", Integer.parseInt(frequencySpinner.getSelectedItem().toString()));
-			settingsEditor.putInt("frequencyIndex", frequencySpinner.getSelectedItemPosition());
-			settingsEditor.commit();
-			if(settings.getBoolean("serviceRunning", false)) {
-				//If service is running, kill it and re-register it with the new frequency
-				ah.unregisterService();
-				ah.registerService();
-			}
-		}
-
-		/**
-		 * Unused
-		 * Called when the selection disappears from this view. 
-		 * The selection can disappear for instance when touch is activated or when the adapter becomes empty.
-		 * 
-		 * @param av The AdapterView that now contains no selected item
-		 */
-		public void onNothingSelected(AdapterView<?> av) {
-			//Do nothing
+		public void onClick(View v) {
+			Intent optionsActivity = new Intent(NarwhalNotifier.this, Options.class);
+			startActivity(optionsActivity);
 		}
 	}
 	
@@ -163,19 +135,15 @@ public class NarwhalNotifier extends Activity {
         ah = new AlarmHelper(NarwhalNotifier.this);
         
         settings = getSharedPreferences(PREFS_NAME, 0);
-        settingsEditor = settings.edit();
         
         LinearLayout accountEditTrigger = (LinearLayout) findViewById(R.id.accountEditTrigger);
         accountEditTrigger.setOnClickListener(new AccountEditListener());
         
         syncSubtext();
         
-        frequencySpinner = (Spinner) findViewById(R.id.frequencySpinner);
-        ArrayAdapter<CharSequence> adapter = ArrayAdapter.createFromResource(this, R.array.frequency_array, android.R.layout.simple_spinner_item);
-        adapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
-        frequencySpinner.setAdapter(adapter);
-        frequencySpinner.setSelection(settings.getInt("frequencyIndex", 2), true);
-        frequencySpinner.setOnItemSelectedListener(new FrequencyListener());
+        TextView optionsTrigger = (TextView) findViewById(R.id.optionsTrigger);
+        optionsTrigger.setOnClickListener(new OptionsListener());
+        
         
         serviceButton = (ToggleButton) findViewById(R.id.serviceToggle);
         serviceButton.setChecked(settings.getBoolean("serviceRunning", false));

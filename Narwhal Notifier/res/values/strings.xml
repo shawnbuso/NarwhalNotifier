@@ -8,6 +8,10 @@
     <string name="username_label">Username: </string>
     <string name="username_hint">Username</string>
     <string name="password_label">Password: </string>
+    <string name="options_label">Options</string>
+    <string name="check_label">Update me on:</string>
+    <string name="messages">Messages</string>
+    <string name="modmail">Modmail</string>
     <string name="save">Save</string>
     <string name="logout">Log Out</string>
     <string-array name="frequency_array">

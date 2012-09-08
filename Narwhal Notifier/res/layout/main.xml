@@ -29,6 +29,7 @@
 
         <include
             android:id="@+id/accountEditTrigger"
+            android:clickable="true"
             android:layout_marginBottom="10dp"
             android:layout_marginTop="10dp"
             layout="@layout/list_item" />
@@ -42,16 +43,13 @@
             android:background="#888888" />
 
         <TextView
-            android:id="@+id/frequencyPrompt"
+            android:id="@+id/optionsTrigger"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:text="@string/frequency_label"
+            android:layout_gravity="center"
+            android:clickable="true"
+            android:text="@string/options_label"
             android:textAppearance="?android:attr/textAppearanceLarge" />
-
-        <Spinner
-            android:id="@+id/frequencySpinner"
-            android:layout_width="fill_parent"
-            android:layout_height="wrap_content" />
 
         <View
             android:id="@id/separator"
