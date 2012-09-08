@@ -152,18 +152,21 @@ public class NarwhalNotifierReceiver extends BroadcastReceiver {
 			String contentTitle = "";
 			String tickerText = "";
 			int notificationID = 0;
+			int icon = 0;
 			if(modmail) {
 				topTimeString = "topModmailMessageTime";
 				contentSuffix = " new modmail messages. Click here to view them!";
 				intentURL = "http://www.reddit.com/message/moderator";
 				contentTitle = "New modmail message!";
 				notificationID = MODMAIL_NOTIFICATION_ID;
+				icon = R.drawable.mod_notification;
 			} else {
 				topTimeString = "topMessageTime";
 				contentSuffix = " new reddit messages. Click here to view them!";
 				intentURL = "http://www.reddit.com/message/unread";
 				contentTitle = "New reddit message!";
 				notificationID = NOTIFICATION_ID;
+				icon = R.drawable.notification;
 			}
 			tickerText = contentTitle;
 			
@@ -200,7 +203,6 @@ public class NarwhalNotifierReceiver extends BroadcastReceiver {
 						settingsEditor.commit();
 						// Taken from
 						// http://developer.android.com/guide/topics/ui/notifiers/notifications.html
-						int icon = R.drawable.notification;
 						long when = System.currentTimeMillis();
 						//CharSequence contentTitle = "New reddit message!";
 						CharSequence contentText = "";
