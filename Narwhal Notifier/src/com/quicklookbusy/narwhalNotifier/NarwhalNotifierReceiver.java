@@ -33,6 +33,7 @@ import android.content.SharedPreferences;
 import android.content.SharedPreferences.Editor;
 import android.net.Uri;
 import android.support.v4.app.NotificationCompat;
+import android.text.Html;
 import android.util.Log;
 
 /**
@@ -94,7 +95,6 @@ public class NarwhalNotifierReceiver extends BroadcastReceiver {
 	 *            Context of the app
 	 */
 	private void update(Context context) {
-		log("In loop");
 		String url = "http://www.reddit.com/message/unread/.json";
 		NameValuePair header = new BasicNameValuePair("Cookie",
 				"reddit_session=" + settings.getString("cookie", ""));
@@ -136,10 +136,8 @@ public class NarwhalNotifierReceiver extends BroadcastReceiver {
 		public void doOnResult(Object o) {
 			try {
 				String jsonString = (String) o;
-				log("First Response: " + jsonString.toString());
 				JSONTokener tokener = new JSONTokener(jsonString);
 				JSONObject jsonResult = new JSONObject(tokener);
-				log("JSON Response: " + jsonResult.toString());
 
 				JSONObject data = jsonResult.getJSONObject("data");
 				settingsEditor.putString("modhash", data.getString("modhash"));
@@ -147,22 +145,20 @@ public class NarwhalNotifierReceiver extends BroadcastReceiver {
 
 				JSONArray children = data.getJSONArray("children");
 
+				int numMessages;
 				if (children.length() == 0) {
 					log("No new messages");
 					notificationManager.cancel(NOTIFICATION_ID);
+					numMessages = 0;
 				} else {
 					log("New messages!");
+					numMessages = children.length();
 
 					JSONObject topMessageData = children.getJSONObject(0)
 							.getJSONObject("data");
-					log("Created: " + topMessageData.getString("created"));
 					String createdString = topMessageData.getString("created");
 					NumberFormat nf = new DecimalFormat("###.##");
 					long topMessageTime = nf.parse(createdString).longValue();
-					log("topMessageData: " + topMessageData.toString());
-					log("Top message time: "
-							+ settings.getLong("topMessageTime", 0));
-					log("Current message time: " + topMessageTime);
 					if (topMessageTime > settings.getLong("topMessageTime", 0)) {
 						log("Notifying");
 						// Only notify on a new top message
@@ -176,7 +172,18 @@ public class NarwhalNotifierReceiver extends BroadcastReceiver {
 						long when = System.currentTimeMillis();
 						// Context context = getApplicationContext();
 						CharSequence contentTitle = "New reddit message!";
-						CharSequence contentText = "You have a new reddit message! Click here to view it!";
+						CharSequence contentText = "";
+						if(numMessages > 1) {
+							contentText = "You have " + numMessages + " new reddit messages. Click here to view them!";
+						} else {
+							String author = topMessageData.getString("author");
+							String body = topMessageData.getString("body_html");
+							//First time converts stuff like "&lt;" to "<"
+							body = Html.fromHtml(body).toString();
+							//This actually strips out the html tages, once the above line converts the text to html tags
+							body = Html.fromHtml(body).toString();
+							contentText = author + ": " + body;
+						}
 
 						Intent notificationIntent = new Intent(
 								Intent.ACTION_VIEW,
