@@ -125,7 +125,7 @@ public class NarwhalNotifier extends Activity {
 				if(serviceButton.isChecked()) {					
 					if(settings.getString("user", "").equals("")) {
 						serviceFeedbackLabel.setText("Error: No user logged in");
-						serviceFeedbackLabel.setTextColor(Color.RED);
+						serviceFeedbackLabel.setTextColor(Color.YELLOW);
 						serviceButton.setChecked(false);
 					}
 					else {
@@ -141,11 +141,11 @@ public class NarwhalNotifier extends Activity {
 						ah.unregisterService();
 						
 						serviceFeedbackLabel.setText("Service stopped");
-						serviceFeedbackLabel.setTextColor(Color.GREEN);
+						serviceFeedbackLabel.setTextColor(Color.RED);
 					}
 					else {
 						serviceFeedbackLabel.setText("Error: Service not running");
-						serviceFeedbackLabel.setTextColor(Color.RED);
+						serviceFeedbackLabel.setTextColor(Color.YELLOW);
 					}
 				}
 		}		
@@ -195,7 +195,14 @@ public class NarwhalNotifier extends Activity {
     public void onResume() {
     	super.onResume();
     	syncSubtext();
-    	serviceFeedbackLabel.setText("");
+        
+        if(settings.getBoolean("serviceRunning", false)) {
+        	serviceFeedbackLabel.setText("Service is running");
+			serviceFeedbackLabel.setTextColor(Color.GREEN);
+        } else {
+        	serviceFeedbackLabel.setText("Service is NOT running");
+			serviceFeedbackLabel.setTextColor(Color.RED);
+        }
     }
     
     /**
