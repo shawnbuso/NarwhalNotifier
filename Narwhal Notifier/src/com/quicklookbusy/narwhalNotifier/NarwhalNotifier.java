@@ -11,6 +11,7 @@ package com.quicklookbusy.narwhalNotifier;
 import android.app.Activity;
 import android.content.Intent;
 import android.content.SharedPreferences;
+import android.content.SharedPreferences.Editor;
 import android.graphics.Color;
 import android.os.Bundle;
 import android.view.View;
@@ -135,6 +136,7 @@ public class NarwhalNotifier extends Activity {
         ah = new AlarmHelper(NarwhalNotifier.this);
         
         settings = getSharedPreferences(PREFS_NAME, 0);
+        Editor editor = settings.edit();
         
         LinearLayout accountEditTrigger = (LinearLayout) findViewById(R.id.accountEditTrigger);
         accountEditTrigger.setOnClickListener(new AccountEditListener());
@@ -151,6 +153,20 @@ public class NarwhalNotifier extends Activity {
         
         serviceFeedbackLabel = (TextView) findViewById(R.id.serviceFeedbackLabel);
         serviceFeedbackLabel.setText("");
+        
+        if(!settings.contains("frequency")) {
+        	editor.putInt("frequency", 60);
+			editor.putInt("frequencyIndex", 7);
+        }
+        
+        if(!settings.contains("checkMessages")) {
+        	editor.putBoolean("checkMessages", true);
+        }
+        
+        if(!settings.contains("checkModmail")) {
+        	editor.putBoolean("checkModmail", true);
+        }
+        editor.commit();
         
         AdView adView = (AdView)this.findViewById(R.id.adView);
         adView.loadAd(new AdRequest());
