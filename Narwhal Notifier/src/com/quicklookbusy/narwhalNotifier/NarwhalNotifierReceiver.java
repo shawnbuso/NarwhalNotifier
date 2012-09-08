@@ -33,7 +33,6 @@ import android.content.SharedPreferences;
 import android.content.SharedPreferences.Editor;
 import android.net.Uri;
 import android.support.v4.app.NotificationCompat;
-import android.text.Html;
 import android.util.Log;
 
 /**
@@ -44,8 +43,11 @@ import android.util.Log;
  */
 public class NarwhalNotifierReceiver extends BroadcastReceiver {
 
-	/** ID used to send notifications */
+	/** ID used to send message notifications */
 	public static final int NOTIFICATION_ID = 86949977;
+	
+	/** ID used to send modmail notifications */
+	public static final int MODMAIL_NOTIFICATION_ID = 86949978;
 
 	/** Holds state about whether the service is running */
 	volatile boolean runService;
@@ -85,7 +87,8 @@ public class NarwhalNotifierReceiver extends BroadcastReceiver {
 		 * hitter.start();
 		 */
 
-		update(context);
+		update(context, false);
+		update(context, true);
 	}
 
 	/**
@@ -94,13 +97,18 @@ public class NarwhalNotifierReceiver extends BroadcastReceiver {
 	 * @param context
 	 *            Context of the app
 	 */
-	private void update(Context context) {
-		String url = "http://www.reddit.com/message/unread/.json";
+	private void update(Context context, boolean modmail) {
+		String url = "";
+		if(modmail) {
+			url = "http://www.reddit.com/message/moderator/unread/.json";
+		} else {
+			url = "http://www.reddit.com/message/unread/.json";
+		}
 		NameValuePair header = new BasicNameValuePair("Cookie",
 				"reddit_session=" + settings.getString("cookie", ""));
 
 		AsyncRequest req = new AsyncRequest(url, null, Arrays.asList(header),
-				new UpdateCallback(context), AsyncRequest.REQUEST_TYPE.GET);
+				new UpdateCallback(context, modmail), AsyncRequest.REQUEST_TYPE.GET);
 		req.start();
 
 	}
@@ -118,15 +126,19 @@ public class NarwhalNotifierReceiver extends BroadcastReceiver {
 	}
 
 	public class UpdateCallback implements RequestCallback {
-		/** Used for notiifications */
+		/** Used for notifications */
 		Context context;
+		
+		/** Used to keep state */
+		boolean modmail;
 		
 		/**
 		 * Initializes the callback with the context
 		 * @param context Context of the app
 		 */
-		public UpdateCallback(Context context) {
+		public UpdateCallback(Context context, boolean modmail) {
 			this.context = context;
+			this.modmail = modmail;
 		}
 		
 		/**
@@ -134,6 +146,30 @@ public class NarwhalNotifierReceiver extends BroadcastReceiver {
 		 * @param o Object returned from AsyncRequest
 		 */
 		public void doOnResult(Object o) {
+			String topTimeString = "";
+			String contentSuffix = "";
+			String intentURL = "";
+			String contentTitle = "";
+			String tickerText = "";
+			int notificationID = 0;
+			int icon = 0;
+			if(modmail) {
+				topTimeString = "topModmailMessageTime";
+				contentSuffix = " new modmail messages. Click here to view them!";
+				intentURL = "http://www.reddit.com/message/moderator";
+				contentTitle = "New modmail message!";
+				notificationID = MODMAIL_NOTIFICATION_ID;
+				icon = R.drawable.mod_notification;
+			} else {
+				topTimeString = "topMessageTime";
+				contentSuffix = " new reddit messages. Click here to view them!";
+				intentURL = "http://www.reddit.com/message/unread";
+				contentTitle = "New reddit message!";
+				notificationID = NOTIFICATION_ID;
+				icon = R.drawable.notification;
+			}
+			tickerText = contentTitle;
+			
 			try {
 				String jsonString = (String) o;
 				JSONTokener tokener = new JSONTokener(jsonString);
@@ -159,35 +195,29 @@ public class NarwhalNotifierReceiver extends BroadcastReceiver {
 					String createdString = topMessageData.getString("created");
 					NumberFormat nf = new DecimalFormat("###.##");
 					long topMessageTime = nf.parse(createdString).longValue();
-					if (topMessageTime > settings.getLong("topMessageTime", 0)) {
+					if (topMessageTime > settings.getLong(topTimeString, 0)) {
 						log("Notifying");
 						// Only notify on a new top message
 						settingsEditor
-								.putLong("topMessageTime", topMessageTime);
+								.putLong(topTimeString, topMessageTime);
 						settingsEditor.commit();
 						// Taken from
 						// http://developer.android.com/guide/topics/ui/notifiers/notifications.html
-						int icon = R.drawable.notification;
-						CharSequence tickerText = "New reddit message!";
 						long when = System.currentTimeMillis();
-						// Context context = getApplicationContext();
-						CharSequence contentTitle = "New reddit message!";
+						//CharSequence contentTitle = "New reddit message!";
 						CharSequence contentText = "";
 						if(numMessages > 1) {
-							contentText = "You have " + numMessages + " new reddit messages. Click here to view them!";
+							contentText = "You have " + numMessages + /*" new reddit messages. Click here to view them!"*/ contentSuffix;
 						} else {
 							String author = topMessageData.getString("author");
-							String body = topMessageData.getString("body_html");
-							//First time converts stuff like "&lt;" to "<"
-							body = Html.fromHtml(body).toString();
-							//This actually strips out the html tages, once the above line converts the text to html tags
-							body = Html.fromHtml(body).toString();
-							contentText = author + ": " + body;
+							String body = topMessageData.getString("body");
+							String subreddit = topMessageData.getString("subreddit");
+							contentText = author + " via " + subreddit + ": " + body;
 						}
 
 						Intent notificationIntent = new Intent(
 								Intent.ACTION_VIEW,
-								Uri.parse("http://www.reddit.com/message/unread"));
+								Uri.parse(/*"http://www.reddit.com/message/unread"*/intentURL));
 						PendingIntent contentIntent = PendingIntent
 								.getActivity(context, 0, notificationIntent, 0);
 
@@ -206,7 +236,7 @@ public class NarwhalNotifierReceiver extends BroadcastReceiver {
 						notification.defaults |= Notification.DEFAULT_VIBRATE;
 						notification.flags |= Notification.FLAG_AUTO_CANCEL;
 
-						notificationManager.notify(NOTIFICATION_ID,
+						notificationManager.notify(notificationID,
 								notification);
 					}
 				}
