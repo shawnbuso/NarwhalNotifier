@@ -1,4 +1,9 @@
 <?xml version="1.0" encoding="utf-8"?>
+<!-- 
+	list_item.xml
+	Defines the layout for a list item
+	Copyright (C) Shawn Busolits, 2012 All Rights Reserved
+ -->
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
     android:layout_width="fill_parent"
     android:layout_height="wrap_content"

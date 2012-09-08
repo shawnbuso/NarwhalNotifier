@@ -1,4 +1,9 @@
 <?xml version="1.0" encoding="utf-8"?>
+<!-- 
+	main.xml
+	Defines the layout for the main screen
+	Copyright (C) Shawn Busolits, 2012 All Rights Reserved
+ -->
 <RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:ads="http://schemas.android.com/apk/lib/com.google.ads"
     android:layout_width="fill_parent"
@@ -44,9 +49,10 @@
 
         <TextView
             android:id="@+id/optionsTrigger"
-            android:layout_width="wrap_content"
+            android:layout_width="fill_parent"
             android:layout_height="wrap_content"
             android:layout_gravity="center"
+            android:gravity="center"
             android:clickable="true"
             android:text="@string/options_label"
             android:textAppearance="?android:attr/textAppearanceLarge" />

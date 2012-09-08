@@ -1,3 +1,11 @@
+/*
+ * Options.java
+ * 
+ * Defines the class which controls the Activity used to modify app options
+ * 
+ * Copyright (C) Shawn Busolits, 2012 All Rights Reserved
+ */
+
 package com.quicklookbusy.narwhalNotifier;
 
 import java.text.SimpleDateFormat;
