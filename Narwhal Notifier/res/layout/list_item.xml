@@ -8,6 +8,7 @@
         android:id="@+id/accountText"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
+            android:layout_gravity="center"
         android:text="@string/account_label"
         android:textAppearance="?android:attr/textAppearanceLarge" />
 
@@ -15,6 +16,7 @@
         android:id="@+id/accountSubtext"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
+            android:layout_gravity="center"
         android:text=""
         android:textAppearance="?android:attr/textAppearanceSmall" />
 
