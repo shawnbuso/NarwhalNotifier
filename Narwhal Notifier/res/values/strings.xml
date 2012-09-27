@@ -10,8 +10,12 @@
     <string name="password_label">Password: </string>
     <string name="options_label">Options</string>
     <string name="check_label">Update me on:</string>
+    <string name="mod_label">My subreddits:</string>
+    <string name="mod_sublabel">Subreddits you moderate, comma-separated</string>
+    <string name="subHint">subreddit1,subreddit2,subreddit3&#8230;</string>
     <string name="messages">Messages</string>
     <string name="modmail">Modmail</string>
+    <string name="modqueue">Mod Queue</string>
     <string name="save">Save</string>
     <string name="logout">Log Out</string>
     <string-array name="frequency_array">
