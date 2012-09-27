@@ -48,6 +48,9 @@ public class NarwhalNotifierReceiver extends BroadcastReceiver {
 	
 	/** ID used to send modmail notifications */
 	public static final int MODMAIL_NOTIFICATION_ID = 86949978;
+	
+	/** ID used to send modqueue notifications */
+	public static final int MODQUEUE_NOTIFICATION_ID = 86949979;
 
 	/** Holds state about whether the service is running */
 	volatile boolean runService;
@@ -89,11 +92,15 @@ public class NarwhalNotifierReceiver extends BroadcastReceiver {
 
 		log("checkMessages is " + settings.getBoolean("checkMessages", false));
 		if(settings.getBoolean("checkMessages", false)) {
-			update(context, false);
+			checkMessages(context, false);
 		}
 		log("checkModmail is " + settings.getBoolean("checkModmail", false));
 		if(settings.getBoolean("checkModmail", false)) {
-			update(context, true);
+			checkMessages(context, true);
+		}
+		log("checkModqueue is " + settings.getBoolean("checkModqueue", false));
+		if(settings.getBoolean("checkModqueue", false)) {
+			checkModqueue(context);
 		}
 	}
 
@@ -103,7 +110,7 @@ public class NarwhalNotifierReceiver extends BroadcastReceiver {
 	 * @param context
 	 *            Context of the app
 	 */
-	private void update(Context context, boolean modmail) {
+	private void checkMessages(Context context, boolean modmail) {
 		String url = "";
 		if(modmail) {
 			url = "http://www.reddit.com/message/moderator/unread/.json";
@@ -114,9 +121,25 @@ public class NarwhalNotifierReceiver extends BroadcastReceiver {
 				"reddit_session=" + settings.getString("cookie", ""));
 
 		AsyncRequest req = new AsyncRequest(url, null, Arrays.asList(header),
-				new UpdateCallback(context, modmail), AsyncRequest.REQUEST_TYPE.GET);
+				new MessageCallback(context, modmail), AsyncRequest.REQUEST_TYPE.GET);
 		req.start();
 
+	}
+	
+	/** 
+	 * Checks if there are any messages in the user's modqueues
+	 * 
+	 * @param context
+	 * 			  Context of the app
+	 */
+	private void checkModqueue(Context context) {
+		String url = "http://www.reddit.com/r/mod/about/modqueue.json";
+		NameValuePair header = new BasicNameValuePair("Cookie",
+				"reddit_session=" + settings.getString("cookie", ""));
+
+		AsyncRequest req = new AsyncRequest(url, null, Arrays.asList(header),
+				new ModqueueCallback(context), AsyncRequest.REQUEST_TYPE.GET);
+		req.start();
 	}
 
 	/**
@@ -131,7 +154,12 @@ public class NarwhalNotifierReceiver extends BroadcastReceiver {
 		Log.d(logTag, df.format(date) + ": " + s);
 	}
 
-	public class UpdateCallback implements RequestCallback {
+	/**
+	 * Called with the result of querying reddit for messages, both normal and moderator
+	 * @author Shawn Busolits
+	 * @version 1.0
+	 */
+	public class MessageCallback implements RequestCallback {
 		/** Used for notifications */
 		Context context;
 		
@@ -142,7 +170,7 @@ public class NarwhalNotifierReceiver extends BroadcastReceiver {
 		 * Initializes the callback with the context
 		 * @param context Context of the app
 		 */
-		public UpdateCallback(Context context, boolean modmail) {
+		public MessageCallback(Context context, boolean modmail) {
 			this.context = context;
 			this.modmail = modmail;
 		}
@@ -187,14 +215,12 @@ public class NarwhalNotifierReceiver extends BroadcastReceiver {
 
 				JSONArray children = data.getJSONArray("children");
 
-				int numMessages;
-				if (children.length() == 0) {
+				int numMessages = children.length();
+				if (numMessages == 0) {
 					log("No new messages");
 					notificationManager.cancel(notificationID);
-					numMessages = 0;
 				} else {
 					log("New messages!");
-					numMessages = children.length();
 
 					JSONObject topMessageData = children.getJSONObject(0)
 							.getJSONObject("data");
@@ -210,10 +236,9 @@ public class NarwhalNotifierReceiver extends BroadcastReceiver {
 						// Taken from
 						// http://developer.android.com/guide/topics/ui/notifiers/notifications.html
 						long when = System.currentTimeMillis();
-						//CharSequence contentTitle = "New reddit message!";
 						CharSequence contentText = "";
 						if(numMessages > 1) {
-							contentText = "You have " + numMessages + /*" new reddit messages. Click here to view them!"*/ contentSuffix;
+							contentText = "You have " + numMessages + contentSuffix;
 						} else {
 							String author = topMessageData.getString("author");
 							String body = topMessageData.getString("body");
@@ -223,14 +248,10 @@ public class NarwhalNotifierReceiver extends BroadcastReceiver {
 
 						Intent notificationIntent = new Intent(
 								Intent.ACTION_VIEW,
-								Uri.parse(/*"http://www.reddit.com/message/unread"*/intentURL));
+								Uri.parse(intentURL));
 						PendingIntent contentIntent = PendingIntent
 								.getActivity(context, 0, notificationIntent, 0);
 
-						// DEPRECATED - Notification notification = new
-						// Notification(icon, tickerText, when);
-						// DEPRECATED - notification.setLatestEventInfo(context,
-						// contentTitle, contentText, contentIntent);
 						NotificationCompat.Builder builder = new NotificationCompat.Builder(
 								context);
 						builder.setContentTitle(contentTitle)
@@ -251,6 +272,97 @@ public class NarwhalNotifierReceiver extends BroadcastReceiver {
 				log("Error getting messages: " + e.toString());
 			}
 
+		}
+	}
+	
+	/**
+	 * Called with the result of querying reddit for modqueue info
+	 * @author Shawn Busolits
+	 * @version 1.0
+	 */
+	public class ModqueueCallback implements RequestCallback {
+
+		/** Used for notifications */
+		Context context;
+		
+		public ModqueueCallback(Context context) {
+			this.context = context;
+		}
+		
+		/**
+		 * Reads the results and updates settings editor with a list of full modqueues
+		 * @param o Object returned from AsyncRequest
+		 */
+		public void doOnResult(Object o) {
+			settingsEditor.putLong("prevTopModqueueTime", settings.getLong("currentTopModqueueTime", 0));
+			settingsEditor.commit();
+			
+			try {
+				String jsonString = (String) o;
+				JSONTokener tokener = new JSONTokener(jsonString);
+				JSONObject jsonResult = new JSONObject(tokener);
+
+				JSONObject data = jsonResult.getJSONObject("data");
+				settingsEditor.putString("modhash", data.getString("modhash"));
+				settingsEditor.commit();
+
+				JSONArray children = data.getJSONArray("children");
+
+				int numMessages = children.length();
+				if (numMessages == 0) {
+					log("No new modqueues");
+					notificationManager.cancel(MODQUEUE_NOTIFICATION_ID);
+				} else {
+					log("New modqueues!");
+
+					JSONObject topMessageData = children.getJSONObject(0)
+							.getJSONObject("data");
+					String createdString = topMessageData.getString("created");
+					NumberFormat nf = new DecimalFormat("###.##");
+					long topMessageTime = nf.parse(createdString).longValue();
+					if (topMessageTime > settings.getLong("topModqueueTime", 0)) {
+						log("Notifying");
+						// Only notify on a new top message
+						settingsEditor
+								.putLong("topModqueueTime", topMessageTime);
+						settingsEditor.commit();
+						// Taken from
+						// http://developer.android.com/guide/topics/ui/notifiers/notifications.html
+						long when = System.currentTimeMillis();
+						
+						CharSequence contentText = "";
+						if(numMessages == 1) {
+							contentText = "1 new item in your modqueue!";
+						} else {
+							contentText = numMessages + " new items in your modqueue";
+						}
+						
+
+						Intent notificationIntent = new Intent(
+								Intent.ACTION_VIEW,
+								Uri.parse("http://www.reddit.com/r/mod/about/modqueue"));
+						PendingIntent contentIntent = PendingIntent
+								.getActivity(context, 0, notificationIntent, 0);
+
+						NotificationCompat.Builder builder = new NotificationCompat.Builder(
+								context);
+						builder.setContentTitle("New modqueue items")
+								.setTicker("New modqueue items")
+								.setContentText(contentText).setSmallIcon(R.drawable.mod_notification)
+								.setContentIntent(contentIntent).setWhen(when);
+						Notification notification = builder.build();
+						notification.defaults |= Notification.DEFAULT_SOUND;
+						notification.defaults |= Notification.DEFAULT_VIBRATE;
+						notification.flags |= Notification.FLAG_AUTO_CANCEL;
+
+						notificationManager.notify(MODQUEUE_NOTIFICATION_ID,
+								notification);
+					}
+				}
+
+			} catch (Exception e) {
+				log("Error getting messages: " + e.toString());
+			}
 		}
 	}
 }
