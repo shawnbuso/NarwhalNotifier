@@ -134,7 +134,7 @@ public class Options extends Activity {
         ArrayAdapter<CharSequence> adapter = ArrayAdapter.createFromResource(this, R.array.frequency_array, android.R.layout.simple_spinner_item);
         adapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
         frequencySpinner.setAdapter(adapter);
-        frequencySpinner.setSelection(settings.getInt("frequencyIndex", 2), true);
+        frequencySpinner.setSelection(settings.getInt("frequencyIndex", 7), true);
         frequencySpinner.setOnItemSelectedListener(new FrequencyListener());
         
         messages = (CheckBox) findViewById(R.id.messagesCheck);
