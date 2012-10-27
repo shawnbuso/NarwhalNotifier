@@ -11,6 +11,7 @@ package com.quicklookbusy.narwhalNotifier;
 import java.text.DecimalFormat;
 import java.text.NumberFormat;
 import java.text.SimpleDateFormat;
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Date;
 
@@ -185,24 +186,24 @@ public class NarwhalNotifierReceiver extends BroadcastReceiver {
 			String intentURL = "";
 			String contentTitle = "";
 			String tickerText = "";
+			String type = "";
 			int notificationID = 0;
 			int icon = 0;
 			if(modmail) {
 				topTimeString = "topModmailMessageTime";
 				contentSuffix = " new modmail messages. Click here to view them!";
 				intentURL = "http://www.reddit.com/message/moderator";
-				contentTitle = "New modmail message!";
+				type = "modmail ";
 				notificationID = MODMAIL_NOTIFICATION_ID;
 				icon = R.drawable.mod_notification;
 			} else {
 				topTimeString = "topMessageTime";
 				contentSuffix = " new reddit messages. Click here to view them!";
 				intentURL = "http://www.reddit.com/message/unread";
-				contentTitle = "New reddit message!";
 				notificationID = NOTIFICATION_ID;
 				icon = R.drawable.notification;
 			}
-			tickerText = contentTitle;
+			//tickerText = contentTitle;
 			
 			try {
 				String jsonString = (String) o;
@@ -238,12 +239,27 @@ public class NarwhalNotifierReceiver extends BroadcastReceiver {
 						long when = System.currentTimeMillis();
 						CharSequence contentText = "";
 						if(numMessages > 1) {
+							contentTitle = numMessages + " new " + type + "messages";
+							tickerText = contentTitle;
 							contentText = "You have " + numMessages + contentSuffix;
 						} else {
+							contentTitle = "1 new " + type + "message";
+							tickerText = contentTitle;
 							String author = topMessageData.getString("author");
 							String body = topMessageData.getString("body");
 							String subreddit = topMessageData.getString("subreddit");
 							contentText = author + " via " + subreddit + ": " + body;
+						}
+						
+						//Build list of messages for expanded notification
+						ArrayList<String> expandedContentTexts = new ArrayList<String>();
+						for(int i=0; i<children.length(); i++) {
+							JSONObject child = children.getJSONObject(i).getJSONObject("data");
+							String author = child.getString("author");
+							String body = child.getString("body");
+							String subreddit = child.getString("subreddit");
+							String expandedContentText = author + " via " + subreddit + ": " + body;
+							expandedContentTexts.add(expandedContentText);
 						}
 
 						Intent notificationIntent = new Intent(
@@ -258,6 +274,15 @@ public class NarwhalNotifierReceiver extends BroadcastReceiver {
 								.setTicker(tickerText)
 								.setContentText(contentText).setSmallIcon(icon)
 								.setContentIntent(contentIntent).setWhen(when);
+						
+						NotificationCompat.InboxStyle inboxStyle = new NotificationCompat.InboxStyle();
+						inboxStyle.setBigContentTitle(contentTitle);
+						for(String expandedContentText: expandedContentTexts) {
+							inboxStyle.addLine(expandedContentText);
+						}
+						
+						builder.setStyle(inboxStyle);
+						
 						Notification notification = builder.build();
 						notification.defaults |= Notification.DEFAULT_SOUND;
 						notification.defaults |= Notification.DEFAULT_VIBRATE;
@@ -337,6 +362,17 @@ public class NarwhalNotifierReceiver extends BroadcastReceiver {
 							contentText = numMessages + " new items in your modqueue";
 						}
 						
+						//Build list of messages for expanded notification
+						ArrayList<String> expandedContentTexts = new ArrayList<String>();
+						for(int i=0; i<children.length(); i++) {
+							JSONObject child = children.getJSONObject(i).getJSONObject("data");
+							String author = child.getString("author");
+							String title = child.getString("title");
+							String subreddit = child.getString("subreddit");
+							String expandedContentText = author + " via " + subreddit + ": " + title;
+							expandedContentTexts.add(expandedContentText);
+						}
+						
 
 						Intent notificationIntent = new Intent(
 								Intent.ACTION_VIEW,
@@ -350,6 +386,15 @@ public class NarwhalNotifierReceiver extends BroadcastReceiver {
 								.setTicker("New modqueue items")
 								.setContentText(contentText).setSmallIcon(R.drawable.mod_notification)
 								.setContentIntent(contentIntent).setWhen(when);
+						
+						NotificationCompat.InboxStyle inboxStyle = new NotificationCompat.InboxStyle();
+						inboxStyle.setBigContentTitle("New modqueue items");
+						for(String expandedContentText: expandedContentTexts) {
+							inboxStyle.addLine(expandedContentText);
+						}
+						
+						builder.setStyle(inboxStyle);
+						
 						Notification notification = builder.build();
 						notification.defaults |= Notification.DEFAULT_SOUND;
 						notification.defaults |= Notification.DEFAULT_VIBRATE;
