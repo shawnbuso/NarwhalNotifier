@@ -267,8 +267,8 @@ public class NarwhalNotifierReceiver extends BroadcastReceiver {
 							String body = topMessageData.getString("body");
 							String subreddit = topMessageData
 									.getString("subreddit");
-							contentText = author + " via " + subreddit + ": "
-									+ body;
+							contentText = body + " - " + author + " via "
+									+ subreddit;
 						}
 
 						// Build list of messages for expanded notification
@@ -279,8 +279,8 @@ public class NarwhalNotifierReceiver extends BroadcastReceiver {
 							String author = child.getString("author");
 							String body = child.getString("body");
 							String subreddit = child.getString("subreddit");
-							String expandedContentText = author + " via "
-									+ subreddit + ": " + body;
+							String expandedContentText = body + " - " + author
+									+ " via " + subreddit;
 							expandedContentTexts.add(expandedContentText);
 						}
 
@@ -382,11 +382,22 @@ public class NarwhalNotifierReceiver extends BroadcastReceiver {
 						long when = System.currentTimeMillis();
 
 						CharSequence contentText = "";
-						if (numMessages == 1) {
-							contentText = "1 new item in your modqueue!";
-						} else {
-							contentText = numMessages
+						String contentTitle = "";
+						String tickerText = "";
+						if (numMessages > 1) {
+							contentTitle = numMessages + " new modqueue items";
+							tickerText = contentTitle;
+							contentText = "You have " + numMessages
 									+ " new items in your modqueue";
+						} else {
+							contentTitle = "1 new modqueue item";
+							tickerText = contentTitle;
+							String author = topMessageData.getString("author");
+							String title = topMessageData.getString("title");
+							String subreddit = topMessageData
+									.getString("subreddit");
+							contentText = title + " - " + author + " via "
+									+ subreddit;
 						}
 
 						// Build list of messages for expanded notification
@@ -397,8 +408,8 @@ public class NarwhalNotifierReceiver extends BroadcastReceiver {
 							String author = child.getString("author");
 							String title = child.getString("title");
 							String subreddit = child.getString("subreddit");
-							String expandedContentText = author + " via "
-									+ subreddit + ": " + title;
+							String expandedContentText = title + " - " + author
+									+ " via " + subreddit;
 							expandedContentTexts.add(expandedContentText);
 						}
 
@@ -410,8 +421,8 @@ public class NarwhalNotifierReceiver extends BroadcastReceiver {
 
 						NotificationCompat.Builder builder = new NotificationCompat.Builder(
 								context);
-						builder.setContentTitle("New modqueue items")
-								.setTicker("New modqueue items")
+						builder.setContentTitle(contentTitle)
+								.setTicker(tickerText)
 								.setContentText(contentText)
 								.setSmallIcon(R.drawable.mod_notification)
 								.setContentIntent(contentIntent).setWhen(when);
