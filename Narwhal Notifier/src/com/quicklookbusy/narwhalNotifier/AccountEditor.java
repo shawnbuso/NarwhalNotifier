@@ -3,7 +3,18 @@
  * 
  * Defines the class which controls the Activity used to log in and out of the user's account
  * 
- * Copyright (C) Shawn Busolits, 2012 All Rights Reserved
+ * Copyright 2012 Shawn Busolits
+ * Licensed under the Apache License, Version 2.0 (the "License"); you may 
+ * not use this file except in compliance with the License. You may obtain a 
+ * copy of the License at
+ * 
+ * http://www.apache.org/licenses/LICENSE-2.0
+ * 
+ * Unless required by applicable law or agreed to in writing, software 
+ * distributed under the License is distributed on an "AS IS" BASIS, WITHOUT 
+ * WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied. See the 
+ * License for the specific language governing permissions and limitations 
+ * under the License.
  */
 
 package com.quicklookbusy.narwhalNotifier;
@@ -66,10 +77,10 @@ public class AccountEditor extends Activity {
 	SharedPreferences settings;
 	/** Used to edit state about the app */
 	Editor settingsEditor;
-	
+
 	/** Loading dialog for async login */
 	ProgressDialog loadingDialog;
-	
+
 	/** Used to set feedback after login */
 	Handler handler;
 
@@ -104,7 +115,8 @@ public class AccountEditor extends Activity {
 
 			AsyncRequest req = new AsyncRequest(url, nameValuePairs,
 					new LoginCallback(uname), AsyncRequest.REQUEST_TYPE.POST);
-			loadingDialog = ProgressDialog.show(AccountEditor.this, "", "Loading. Please wait...", true);
+			loadingDialog = ProgressDialog.show(AccountEditor.this, "",
+					"Loading. Please wait...", true);
 			req.start();
 
 		}
@@ -119,16 +131,16 @@ public class AccountEditor extends Activity {
 	public class LoginCallback implements RequestCallback {
 
 		private String uname;
-		
+
 		public LoginCallback(String uname) {
 			this.uname = uname;
 		}
-		
+
 		public void doOnResult(Object o) {
 			String feedbackString = "";
 			int feedbackColor = 0;
 			boolean clearPasswordField = false;
-			
+
 			String jsonString = (String) o;
 			try {
 				JSONTokener tokener = new JSONTokener(jsonString);
@@ -143,7 +155,8 @@ public class AccountEditor extends Activity {
 							+ errors.getJSONArray(0).getString(1);
 					feedbackColor = Color.RED;
 					clearPasswordField = true;
-					handler.post(new LoginResultRunner(feedbackString, feedbackColor, clearPasswordField));
+					handler.post(new LoginResultRunner(feedbackString,
+							feedbackColor, clearPasswordField));
 					clearUserData();
 					loadingDialog.dismiss();
 					return;
@@ -168,12 +181,13 @@ public class AccountEditor extends Activity {
 				feedbackString = "Error sending login info: " + e.toString();
 				feedbackColor = Color.RED;
 			} finally {
-				handler.post(new LoginResultRunner(feedbackString, feedbackColor, clearPasswordField));
+				handler.post(new LoginResultRunner(feedbackString,
+						feedbackColor, clearPasswordField));
 				loadingDialog.dismiss();
 			}
 		}
 	}
-	
+
 	/**
 	 * Modifies the screen when the user logs in
 	 * 
@@ -188,23 +202,29 @@ public class AccountEditor extends Activity {
 		int feedbackColor;
 		/** True if the password field should be cleared, false otherwise */
 		boolean clearPasswordField;
-		
+
 		/**
 		 * Initializes the class
-		 * @param feedbackString String to use as feedback 
-		 * @param feedbackColor Color for feedback
-		 * @param clearPasswordField True if the password field should be cleared, false otherwise
+		 * 
+		 * @param feedbackString
+		 *            String to use as feedback
+		 * @param feedbackColor
+		 *            Color for feedback
+		 * @param clearPasswordField
+		 *            True if the password field should be cleared, false
+		 *            otherwise
 		 */
-		public LoginResultRunner(String feedbackString, int feedbackColor, boolean clearPasswordField) {
+		public LoginResultRunner(String feedbackString, int feedbackColor,
+				boolean clearPasswordField) {
 			this.feedbackString = feedbackString;
 			this.feedbackColor = feedbackColor;
 			this.clearPasswordField = clearPasswordField;
 		}
-		
+
 		public void run() {
 			loginFeedbackLabel.setText(feedbackString);
 			loginFeedbackLabel.setTextColor(feedbackColor);
-			if(clearPasswordField) {
+			if (clearPasswordField) {
 				passField.setText("");
 			}
 		}
@@ -273,7 +293,7 @@ public class AccountEditor extends Activity {
 		super.onCreate(savedInstanceState);
 
 		setContentView(R.layout.account_editor);
-		
+
 		handler = new Handler();
 
 		settings = getSharedPreferences(NarwhalNotifier.PREFS_NAME, 0);
